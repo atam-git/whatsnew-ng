@@ -8,7 +8,7 @@ export function Shelf({ shelf, viewAllHref }: { shelf: HomepageShelf; viewAllHre
   return (
     <section className="mt-10">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-xl font-bold">{shelf.title}</h2>
+        <h2 className="font-heading text-ink text-xl font-bold">{shelf.title}</h2>
         {viewAllHref && (
           <Link href={viewAllHref} className="text-brand-600 text-sm hover:underline">
             View all
