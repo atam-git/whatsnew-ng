@@ -1,0 +1,20 @@
+import { SiteFooter } from '@/components/business/site-footer';
+import { SiteHeader } from '@/components/business/site-header';
+
+export default function BusinessLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:rounded focus:bg-white focus:px-3 focus:py-2"
+      >
+        Skip to content
+      </a>
+      <SiteHeader />
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+        {children}
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}

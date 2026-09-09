@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+
+# next
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# env
+.env
+.env*.local
+
+# misc
+.DS_Store
+*.tsbuildinfo
+
+# generated API types (regenerate with `npm run api:types`)
+/src/lib/api/schema.d.ts
