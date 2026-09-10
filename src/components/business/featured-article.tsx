@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ContentCard } from '@/lib/api/types';
 import { CONTENT_PATHS } from '@/lib/api/content';
+import { CoverFallback } from './cover-fallback';
 import { formatDate } from '@/lib/utils/format';
 
 export function FeaturedArticle({ item }: { item: ContentCard }) {
@@ -41,7 +42,7 @@ export function FeaturedArticle({ item }: { item: ContentCard }) {
           href={href}
           className="bg-canvas group relative block aspect-video overflow-hidden rounded-2xl lg:col-span-7 animate-in fade-in slide-in-from-right-8 duration-700"
         >
-          {item.coverImage?.url && (
+          {item.coverImage?.url ? (
             <Image
               src={item.coverImage.url}
               alt={item.coverImage.alt ?? item.title}
@@ -50,6 +51,8 @@ export function FeaturedArticle({ item }: { item: ContentCard }) {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               priority
             />
+          ) : (
+            <CoverFallback />
           )}
         </Link>
       </div>

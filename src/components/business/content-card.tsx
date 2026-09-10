@@ -5,6 +5,7 @@ import { CONTENT_PATHS } from '@/lib/api/content';
 import { formatDate } from '@/lib/utils/format';
 import { cardMeta } from '@/lib/utils/card-meta';
 import { CardMetaRow } from './card-meta';
+import { CoverFallback } from './cover-fallback';
 
 // Accent colour for the eyebrow label, per content type.
 const TYPE_COLORS: Record<string, string> = {
@@ -20,7 +21,7 @@ const TYPE_COLORS: Record<string, string> = {
   READ: 'text-teal-600',
 };
 
-// Human label per content type (fallback when the item has no tag).
+// Human label per content type.
 const TYPE_LABELS: Record<string, string> = {
   RESTAURANT: 'Restaurant',
   HOTEL: 'Hotel',
@@ -31,15 +32,15 @@ const TYPE_LABELS: Record<string, string> = {
   BUSINESS: 'New business',
   CHURCH: 'Faith',
   OPPORTUNITY: 'Opportunity',
-  READ: 'Must read',
+  READ: 'Read',
 };
 
 export function ContentCard({ item }: { item: Card }) {
   const href = `/${CONTENT_PATHS[item.type]}/${item.slug}`;
-  const tag = item.tags?.[0];
-  const eyebrow = tag?.name ?? TYPE_LABELS[item.type] ?? item.type;
-  // A tag eyebrow filters by that tag; a type eyebrow browses the section.
-  const eyebrowHref = tag?.slug ? `/tag/${tag.slug}` : `/${CONTENT_PATHS[item.type]}`;
+  // The eyebrow is always the content type — it should say what kind of thing
+  // the card is, never a (cross-cutting) tag.
+  const eyebrow = TYPE_LABELS[item.type] ?? item.type;
+  const eyebrowHref = `/${CONTENT_PATHS[item.type]}`;
   const eyebrowColor = TYPE_COLORS[item.type] || 'text-muted';
   const meta = cardMeta(item);
 
@@ -51,7 +52,7 @@ export function ContentCard({ item }: { item: Card }) {
         tabIndex={-1}
         className="bg-canvas relative block aspect-[4/3] overflow-hidden rounded-xl shadow-sm transition-shadow duration-300 group-hover:shadow-md"
       >
-        {item.coverImage?.url && (
+        {item.coverImage?.url ? (
           <Image
             src={item.coverImage.url}
             alt={item.coverImage.alt ?? item.title}
@@ -59,6 +60,8 @@ export function ContentCard({ item }: { item: Card }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
+        ) : (
+          <CoverFallback />
         )}
       </Link>
 

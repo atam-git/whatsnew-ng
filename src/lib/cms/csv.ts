@@ -37,6 +37,7 @@ const KIND_HINT: Record<string, string> = {
   textarea: '',
 };
 
+/** Every column the importer understands (parser iterates this). */
 export function csvColumns(type: string): CsvColumn[] {
   const cfg = CONTENT_TYPES[type];
   if (!cfg) return BASE;
@@ -51,6 +52,16 @@ export function csvColumns(type: string): CsvColumn[] {
   return [...BASE, ...detail];
 }
 
+// Fields that need an exact match against a fixed list (dropdowns, existing
+// tags, existing states) or an auto value (slug) are set in the form after
+// import, never in the CSV — that keeps the sheet free-text and forgiving.
+const TEMPLATE_SKIP = new Set(['enum', 'state', 'tags']);
+
+/** The subset put in the downloadable template: free-text columns only. */
+export function templateColumns(type: string): CsvColumn[] {
+  return csvColumns(type).filter((c) => !TEMPLATE_SKIP.has(c.kind));
+}
+
 // ── CSV write ──────────────────────────────────────────────────────────────
 function cell(v: string): string {
   return /[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
@@ -58,7 +69,7 @@ function cell(v: string): string {
 
 /** Header row + one hint/example row the user overwrites. */
 export function buildTemplate(type: string): string {
-  const cols = csvColumns(type);
+  const cols = templateColumns(type);
   const header = cols.map((c) => c.key + (c.required ? ' (required)' : ''));
   const hints = cols.map((c) => c.hint);
   return [header.map(cell).join(','), hints.map(cell).join(',')].join('\r\n') + '\r\n';

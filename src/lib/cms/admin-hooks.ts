@@ -642,3 +642,48 @@ export function useSaveSiteSettings() {
     onSuccess: (r) => qc.setQueryData(['site-settings'], r),
   });
 }
+
+// ── Dashboard overview (single aggregate) ────────────────────────────────────
+
+export interface DashboardData {
+  content: {
+    byType: Record<string, { published: number; draft: number; archived: number }>;
+    totals: { published: number; draft: number; archived: number };
+    featured: number;
+  };
+  publishedPerWeek: { weekOf: string; count: number }[];
+  views: {
+    last7d: number;
+    topViewed: { id: string; type: string; title: string; slug: string; views: number }[];
+  };
+  newsletter: {
+    issues: number;
+    lastSent: {
+      id: string;
+      subject: string;
+      sentAt: string | null;
+      recipientCount: number | null;
+      openCount: number | null;
+      clickCount: number | null;
+    } | null;
+    next: string | null;
+    cadence: { cron: string; timezone: string; enabled: boolean } | null;
+  };
+  subscribers: {
+    active: number;
+    unsubscribed: number;
+    newThisWeek: number;
+    topStates: { state: string; count: number }[];
+  };
+  queue: { pendingListings: number; newContacts: number };
+  coverage: { statesWithContent: number; statesTotal: number };
+  recentActivity: { id: string; action: string; entity: string; at: string; by: string }[];
+}
+
+export function useDashboard() {
+  return useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => cmsFetch<DashboardData>('/dashboard'),
+    staleTime: 30_000,
+  });
+}

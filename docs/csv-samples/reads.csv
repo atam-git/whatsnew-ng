@@ -1,6 +1,6 @@
-title (required),city (required),excerpt,body,tags,publishDate,externalUrl,author,authorTitle,readingTimeMinutes,keyTakeaways
-Why Uber Leaving Lagos Is Bigger Than Ride-Hailing,Lagos,The exit says more about unit economics than ride-hailing.,"Uber's quiet retreat from Lagos is read as a defeat. It isn't.
+title (required),excerpt,body,publishDate,externalUrl,author,authorTitle,readingTimeMinutes,keyTakeaways
+Why Uber Leaving Lagos Is Bigger Than Ride-Hailing,The exit says more about unit economics than ride-hailing.,"Uber's quiet retreat from Lagos is read as a defeat. It isn't.
 
-The real story is how brutal the cost of doing tech business in Nigeria has become.",Must read; Business,2026-09-02,https://example.com/uber-lagos,Chidi Okafor,Staff writer,8,Unit economics beat scale; Local players fill the gap
-The Quiet Boom in Nigerian Cocoa Exports,Ibadan,Southwest farms are shipping more beans than they have in a decade.,A weak naira and better pricing have made Nigerian cocoa competitive again.,Business; Explainer,2026-09-05,,Ada Nwosu,Contributor,6,Weak naira boosts exports; Processing still lags
-Inside Nnewi's Auto-Parts Cluster,Awka,How a single town became a manufacturing heartbeat.,"Nnewi builds fasteners, filters and full assemblies for half of West Africa.",Culture; Interview,2026-09-08,,Emeka Ibe,,11,
+The real story is how brutal the cost of doing tech business in Nigeria has become.",2026-09-02,https://example.com/uber-lagos,Chidi Okafor,Staff writer,8,Unit economics beat scale; Local players fill the gap
+The Quiet Boom in Nigerian Cocoa Exports,Southwest farms are shipping more beans than they have in a decade.,A weak naira and better pricing have made Nigerian cocoa competitive again.,2026-09-05,,Ada Nwosu,Contributor,6,Weak naira boosts exports; Processing still lags
+Inside Nnewi's Auto-Parts Cluster,How a single town became a manufacturing heartbeat.,"Nnewi builds fasteners, filters and full assemblies for half of West Africa.",2026-09-08,,Emeka Ibe,,11,

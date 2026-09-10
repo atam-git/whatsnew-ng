@@ -10,6 +10,7 @@ import { ContentCard } from '@/components/business/content-card';
 import { NewsletterSignup } from '@/components/business/newsletter-signup';
 import { RichText } from '@/components/business/rich-text';
 import { ContentFacts } from '@/components/business/content-facts';
+import { CoverFallback } from '@/components/business/cover-fallback';
 import { SongEmbed, VideoEmbed } from '@/components/business/media-embed';
 
 const CONTENT_SECTIONS = new Set<string>(Object.values(CONTENT_PATHS));
@@ -213,19 +214,32 @@ export default async function DetailPage({
         </div>
       )}
 
-      {/* Cover Image — skipped for videos where a player already renders */}
-      {item.coverImage?.url && !(section === 'videos' && item.video) && (
-        <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-lg">
-          <Image
-            src={item.coverImage.url}
-            alt={item.coverImage.alt ?? item.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 768px"
-            priority
-          />
-        </div>
-      )}
+      {/* Cover — falls back to the brand mark; skipped when a media player
+          already renders above (video, or a song with a playable source) */}
+      {!(section === 'videos' && item.video) &&
+        !(
+          section === 'songs' &&
+          item.song &&
+          (item.song.spotifyUrl ||
+            item.song.spotifyId ||
+            item.song.youtubeUrl ||
+            item.song.previewAudioUrl)
+        ) && (
+          <div className="bg-canvas relative mt-8 aspect-[16/9] overflow-hidden rounded-lg">
+            {item.coverImage?.url ? (
+              <Image
+                src={item.coverImage.url}
+                alt={item.coverImage.alt ?? item.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 768px"
+                priority
+              />
+            ) : (
+              <CoverFallback />
+            )}
+          </div>
+        )}
 
       {/* Byline - authorship, not interactive */}
       {item.read?.author && (

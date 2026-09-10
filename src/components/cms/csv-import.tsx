@@ -55,8 +55,8 @@ export function CsvImport({
       allWarnings.slice(0, 4).forEach((w) => toast(w, 'error'));
       toast(
         data.length === 1
-          ? 'CSV imported - review, add images, then create.'
-          : `${data.length} rows loaded - you'll go through them one by one.`,
+          ? 'CSV imported - set state/tags, add images, then create.'
+          : `${data.length} rows loaded - set state/tags & images on each, then create.`,
         allWarnings.length ? 'info' : 'success',
       );
     } catch {

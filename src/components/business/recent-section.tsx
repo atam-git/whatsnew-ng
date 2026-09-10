@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { HomepageShelf } from '@/lib/api/types';
 import { CONTENT_PATHS } from '@/lib/api/content';
+import { CoverFallback } from './cover-fallback';
 import { ShelfHeading } from './shelf';
 
 /**
@@ -25,9 +26,9 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
     BUSINESS: 'New business',
     CHURCH: 'Faith',
     OPPORTUNITY: 'Opportunity',
-    READ: 'Must read',
+    READ: 'Read',
   };
-  const label = (type: string, cat?: string) => cat ?? TYPE_LABELS[type] ?? type;
+  const label = (type: string) => TYPE_LABELS[type] ?? type;
 
   return (
     <section>
@@ -40,7 +41,7 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
           className="group relative min-h-[360px] overflow-hidden rounded-2xl lg:col-span-3"
         >
           <div className="bg-ink absolute inset-0">
-            {lead.coverImage?.url && (
+            {lead.coverImage?.url ? (
               <Image
                 src={lead.coverImage.url}
                 alt={lead.coverImage.alt ?? lead.title}
@@ -49,12 +50,14 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
                 className="object-cover transition duration-300 group-hover:scale-105"
                 priority
               />
+            ) : (
+              <CoverFallback />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
           </div>
           <div className="relative flex h-full flex-col justify-end p-6">
             <span className="text-[13px] font-semibold uppercase tracking-wide text-white/80">
-              {label(lead.type, lead.tags?.[0]?.name)}
+              {label(lead.type)}
             </span>
             <h3 className="font-heading mt-1.5 max-w-xl text-2xl leading-tight font-bold text-white sm:text-[28px]">
               {lead.title}
@@ -76,7 +79,7 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
                 className="hover:bg-canvas group flex h-full items-center gap-4 p-4 transition"
               >
                 <div className="bg-canvas relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-lg">
-                  {item.coverImage?.url && (
+                  {item.coverImage?.url ? (
                     <Image
                       src={item.coverImage.url}
                       alt=""
@@ -84,11 +87,13 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
                       sizes="112px"
                       className="object-cover transition group-hover:scale-105"
                     />
+                  ) : (
+                    <CoverFallback className="[&_img]:h-5 sm:[&_img]:h-6" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-muted text-[12px] font-semibold uppercase tracking-wide">
-                    {label(item.type, item.tags?.[0]?.name)}
+                    {label(item.type)}
                   </div>
                   <div className="font-heading text-ink group-hover:text-brand-600 mt-1 line-clamp-2 text-[15px] font-bold leading-snug transition">
                     {item.title}
