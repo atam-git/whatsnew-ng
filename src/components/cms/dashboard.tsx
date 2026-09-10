@@ -53,20 +53,20 @@ export function Dashboard() {
       <PageHeader title="Dashboard" subtitle="Everything new in Nigeria, this week." />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={FileEdit} label="Published items" value={counts.isLoading ? '—' : counts.total} href="/cms/content/reads" />
+        <Stat icon={FileEdit} label="Published items" value={counts.isLoading ? '-' : counts.total} href="/cms/content/reads" />
         <Stat
           icon={Inbox}
           label="Submissions pending"
-          value={pending.data?.meta.total ?? '—'}
+          value={pending.data?.meta.total ?? '-'}
           href="/cms/submissions"
         />
         <Stat
           icon={Mail}
           label="Newsletter issues"
-          value={issues.data?.length ?? '—'}
+          value={issues.data?.length ?? '-'}
           href="/cms/newsletter"
         />
-        <Stat icon={Users2} label="Subscribers" value={subs.data ?? '—'} href="/cms/newsletter" />
+        <Stat icon={Users2} label="Subscribers" value={subs.data ?? '-'} href="/cms/newsletter" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

@@ -4,13 +4,13 @@ import { getPage } from '@/lib/api/pages';
 import { RichText } from './rich-text';
 
 /*
- * About page — designed layout. `title` and the story `body` come from the CMS
+ * About page - designed layout. `title` and the story `body` come from the CMS
  * Pages editor; the structured blocks below come from `page.data` (also edited
  * in the CMS). These DEFAULTS are the fallback if a field is empty.
  */
 const DEFAULTS = {
   heroLede:
-    "A weekly guide to what's genuinely new in Nigeria — the places, releases, events and opportunities worth knowing about, city by city.",
+    "A weekly guide to what's genuinely new in Nigeria - the places, releases, events and opportunities worth knowing about, city by city.",
   quickFacts: ['Every Wednesday', '9 cities', 'Curated, not crowdsourced'],
   coverItems: [
     { label: 'Restaurants & bars', desc: 'New tables, cafés and bars worth the trip.', href: '/restaurants' },
@@ -29,11 +29,11 @@ const DEFAULTS = {
     },
     {
       title: 'Checked against a primary source',
-      body: 'We verify each entry against an official announcement or the business directly — and keep the link.',
+      body: 'We verify each entry against an official announcement or the business directly - and keep the link.',
     },
     {
       title: 'New means new',
-      body: 'A genuinely new place, release or event for the year — not an old one that resurfaced in search.',
+      body: 'A genuinely new place, release or event for the year - not an old one that resurfaced in search.',
     },
   ] as { title: string; body: string }[],
   stats: [
@@ -108,7 +108,7 @@ export async function AboutPage() {
         </div>
       </Bleed>
 
-      {/* Story — the editable rich-text body */}
+      {/* Story - the editable rich-text body */}
       <section className="mx-auto max-w-2xl px-4 py-14 sm:py-20">
         <SectionLabel>Our story</SectionLabel>
         <div className="[&>div]:mt-4">

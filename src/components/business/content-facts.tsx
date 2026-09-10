@@ -90,14 +90,14 @@ function build(section: string, item: any): Fact[] {
         push(
           'Review',
           <span className="text-gray-600 italic">
-            “{d.reviewQuote}” <span className="not-italic">— {d.reviewQuoteAuthor ?? 'reviewer'}</span>
+            “{d.reviewQuote}” <span className="not-italic">- {d.reviewQuoteAuthor ?? 'reviewer'}</span>
           </span>,
         );
       push('Location', [d.neighbourhood, d.address].filter(Boolean).join(' · ') || null);
       push('Price', section === 'hotels' ? money(d.pricePerNightFrom, d.currency) && `from ${money(d.pricePerNightFrom, d.currency)} / night` : d.priceRange && String(d.priceRange).toLowerCase());
       push(section === 'hotels' ? 'Class' : 'Cuisine', section === 'hotels' ? (d.starRating ? `${d.starRating}-star` : null) : list(d.cuisines));
       push(section === 'hotels' ? 'Amenities' : 'Signature dishes', list(section === 'hotels' ? d.amenities : d.signatureDishes));
-      if (section === 'hotels') push('Check-in / out', d.checkInTime ? `${d.checkInTime} / ${d.checkOutTime ?? '—'}` : null);
+      if (section === 'hotels') push('Check-in / out', d.checkInTime ? `${d.checkInTime} / ${d.checkOutTime ?? '-'}` : null);
       if (section === 'restaurants') {
         push('Hours', hoursTable(d.hoursOfOperation));
         push('Opened', d.openedYear);

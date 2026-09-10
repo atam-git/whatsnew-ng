@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 /**
  * Pull-quote band. In the prototype this floats between Startups and Events with
- * a stray "Hotels" tag — kept here as a design element, wired to the Hotels page.
+ * a stray "Hotels" tag - kept here as a design element, wired to the Hotels page.
  */
 export function TestimonialBlock() {
   return (

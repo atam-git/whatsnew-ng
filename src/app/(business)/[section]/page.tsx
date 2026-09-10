@@ -13,7 +13,7 @@ const SECTION_META: Record<string, { heading: string; title: string; description
     heading: 'New restaurants',
     title: 'New restaurants in Nigeria',
     description:
-      'Fresh openings, tasting menus and dining rooms worth a table across Nigeria — updated every week.',
+      'Fresh openings, tasting menus and dining rooms worth a table across Nigeria - updated every week.',
   },
   hotels: {
     heading: 'New hotels & stays',
@@ -84,8 +84,19 @@ export async function generateMetadata({
     title: meta.title,
     description: meta.description,
     alternates: { canonical: `/${section}` },
-    openGraph: { type: 'website', title: `${meta.title} · Whatsnew.ng`, description: meta.description, url },
-    twitter: { card: 'summary_large_image', title: `${meta.title} · Whatsnew.ng`, description: meta.description },
+    openGraph: {
+      type: 'website',
+      title: `${meta.title} · Whatsnew.ng`,
+      description: meta.description,
+      url,
+      images: ['/og-default.png'],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${meta.title} · Whatsnew.ng`,
+      description: meta.description,
+      images: ['/og-default.png'],
+    },
   };
 }
 

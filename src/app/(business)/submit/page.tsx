@@ -59,7 +59,7 @@ export default function SubmitListingPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-gray-600">
             Thanks for your submission! Our editorial team will review it carefully. We publish
-            selectively to maintain quality — no auto-listing.
+            selectively to maintain quality - no auto-listing.
           </p>
 
           <div className="mt-10 flex justify-center gap-4">
@@ -91,7 +91,7 @@ export default function SubmitListingPage() {
             Submit a Listing
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-gray-600 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-            Share something new and noteworthy — we&apos;ll review and publish if it&apos;s a good fit
+            Share something new and noteworthy - we&apos;ll review and publish if it&apos;s a good fit
           </p>
         </div>
       </div>

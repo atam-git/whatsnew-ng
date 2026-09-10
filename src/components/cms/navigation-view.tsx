@@ -14,9 +14,9 @@ import { PageHeader, Card, Button, Dialog, Field, Input, Toggle, Spinner, useToa
 
 const GROUPS: { key: NavGroup; label: string; hint: string }[] = [
   { key: 'HEADER', label: 'Header', hint: 'Top nav links (plus the Location & Categories dropdowns, which are automatic).' },
-  { key: 'FOOTER_PRIMARY', label: 'Footer — Sections', hint: 'First footer column.' },
-  { key: 'FOOTER_COMPANY', label: 'Footer — Company', hint: 'Second footer column.' },
-  { key: 'FOOTER_LEGAL', label: 'Footer — Legal', hint: 'Legal links column.' },
+  { key: 'FOOTER_PRIMARY', label: 'Footer - Sections', hint: 'First footer column.' },
+  { key: 'FOOTER_COMPANY', label: 'Footer - Company', hint: 'Second footer column.' },
+  { key: 'FOOTER_LEGAL', label: 'Footer - Legal', hint: 'Legal links column.' },
 ];
 
 interface Draft {

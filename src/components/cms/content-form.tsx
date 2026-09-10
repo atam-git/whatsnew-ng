@@ -15,7 +15,7 @@ import {
 } from '@/lib/cms/hooks';
 import { PageHeader, Card, Button, Field, Input, Textarea, useToast, useConfirm } from './ui';
 import { StatusBadge } from './ui/status-badge';
-import { RichTextEditor } from './rich-text-editor';
+import { RichTextEditor } from './rich-text-editor-lazy';
 import { FieldRenderer } from './field-renderer';
 import { MediaField, GalleryField } from './media-picker';
 import { EntitySelect } from './entity-select';
@@ -388,7 +388,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
 
           <Card title="Organise">
             <div className="space-y-4">
-              <Field label="Cities" required hint="At least one — this sets the state shown in the site filter.">
+              <Field label="Cities" required hint="At least one - this sets the state shown in the site filter.">
                 <Controller
                   control={control}
                   name="cityIds"

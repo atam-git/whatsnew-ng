@@ -17,7 +17,7 @@ const PRESETS: { label: string; cron: string }[] = [
 ];
 
 function fmt(iso: string | null, timezone: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   try {
     return new Intl.DateTimeFormat('en-GB', {
       weekday: 'short',
@@ -76,7 +76,7 @@ export function NewsletterSchedule() {
           <h3 className="text-ink text-sm font-semibold">Weekly schedule</h3>
           <p className="text-muted text-[13px]">
             When to auto-draft a new issue with the week&apos;s published items. Drafts wait for you
-            to review and send — nothing goes out automatically.
+            to review and send - nothing goes out automatically.
           </p>
 
           <div className="mt-3">

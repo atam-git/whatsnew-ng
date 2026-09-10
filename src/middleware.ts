@@ -3,7 +3,7 @@ import { ACCESS_COOKIE } from '@/lib/auth/session';
 
 /**
  * Gate the CMS. Any `/cms/*` route (except the login page) needs the access
- * cookie present — full role checks happen server-side in the (cms) layout.
+ * cookie present - full role checks happen server-side in the (cms) layout.
  */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

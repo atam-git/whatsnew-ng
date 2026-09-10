@@ -8,7 +8,7 @@ export function SecondaryPromo() {
           Everything new in Nigeria, weekly.
         </h2>
         <p className="text-muted mt-2 text-[15px]">
-          New places, releases and openings &mdash; city by city.
+          New places, releases and openings - city by city.
         </p>
       </div>
       <Link

@@ -163,7 +163,7 @@ export function FieldRenderer({
     return (
       <Field label={def.label} hint={def.help} required={def.required} className={wrapClass}>
         <Select {...register(def.key, { required: def.required })}>
-          <option value="">—</option>
+          <option value="">-</option>
           {def.options?.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}

@@ -338,7 +338,7 @@ function MediaPickerDialog({
             <Spinner className="text-muted" />
           </div>
         ) : (data?.data.length ?? 0) === 0 ? (
-          <p className="text-muted py-10 text-center text-sm">No media yet — upload one above.</p>
+          <p className="text-muted py-10 text-center text-sm">No media yet - upload one above.</p>
         ) : (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
             {data!.data.map((m) => (

@@ -274,7 +274,7 @@ export function usePage(id: string) {
   });
 }
 
-/** Static pages are edit-only — always a PATCH by id. */
+/** Static pages are edit-only - always a PATCH by id. */
 export function useSavePage() {
   const qc = useQueryClient();
   return useMutation({
@@ -334,6 +334,9 @@ export interface IssueRow {
   scheduledFor?: string | null;
   sentAt?: string | null;
   intro?: unknown;
+  recipientCount?: number | null;
+  openCount?: number | null;
+  clickCount?: number | null;
   createdAt: string;
   _count?: { items: number };
 }

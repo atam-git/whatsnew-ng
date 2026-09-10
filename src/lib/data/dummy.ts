@@ -1,5 +1,5 @@
 /**
- * Dummy data for development and design — matches the homepage structure
+ * Dummy data for development and design - matches the homepage structure
  * from the design prototype. Remove or gate with `if (process.env.NODE_ENV === 'development')`
  * once the CMS is populated.
  */
@@ -50,7 +50,7 @@ const createDummyCard = (
     height: 500,
   },
   cities: [{ id: '1', name: 'Lagos', slug: 'lagos' }],
-  // Ignore batch/metadata strings like "Y Combinator S23" — those are not tags.
+  // Ignore batch/metadata strings like "Y Combinator S23" - those are not tags.
   tags:
     category && !/combinator|batch|\b[SW]\d{2}\b/i.test(category)
       ? [{ id: '1', name: category }]
@@ -405,7 +405,7 @@ export const DUMMY_SHELVES: HomepageShelf[] = [
       createDummyCard(
         'event-3',
         'EVENT',
-        'Teaching With Purpose — 25 Years',
+        'Teaching With Purpose - 25 Years',
         'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&h=500&fit=crop',
       ),
       createDummyCard(

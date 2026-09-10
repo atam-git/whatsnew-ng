@@ -83,7 +83,7 @@ export function TagsView() {
       key: 'description',
       header: 'Description',
       cell: (t) => (
-        <span className="text-muted text-[13px]">{t.description || '—'}</span>
+        <span className="text-muted text-[13px]">{t.description || '-'}</span>
       ),
     },
     {
@@ -144,7 +144,7 @@ export function TagsView() {
     const ok = await confirm({
       title: `Delete ${ids.length} tag${ids.length > 1 ? 's' : ''}?`,
       message: used.length
-        ? `${used.length} of them ${used.length > 1 ? 'are' : 'is'} still on published content — those items keep their other tags.`
+        ? `${used.length} of them ${used.length > 1 ? 'are' : 'is'} still on published content - those items keep their other tags.`
         : undefined,
       danger: true,
       confirmLabel: 'Delete',

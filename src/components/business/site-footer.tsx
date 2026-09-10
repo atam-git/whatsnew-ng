@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { NavTree } from '@/lib/api/navigation';
 import type { SiteSettings } from '@/lib/api/site-settings';
@@ -119,20 +120,22 @@ export function SiteFooter({ nav, settings }: { nav?: NavTree; settings?: SiteSe
           {/* Logo and Description */}
           <div className="lg:col-span-4">
             <Link href="/" className="flex items-center">
-              <img
+              <Image
                 src="/Whatsnew.ng.png"
                 alt="Whatsnew.ng"
+                width={72}
+                height={48}
                 className="h-8 w-auto"
               />
             </Link>
             <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-white/80">
-              What&apos;s new in Nigeria — the places, people, releases and openings worth knowing about, updated every week.
+              What&apos;s new in Nigeria - the places, people, releases and openings worth knowing about, updated every week.
             </p>
             <p className="mt-3 text-[15px] text-white/80">
               Whatsnew covers food, music, business and everything opening near you.
             </p>
             
-            {/* Social Icons — real links come from CMS settings; the disabled
+            {/* Social Icons - real links come from CMS settings; the disabled
                 "coming soon" buttons only show if settings failed to load. */}
             <div className="mt-6 flex gap-3">
               {settings

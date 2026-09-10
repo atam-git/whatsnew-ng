@@ -53,8 +53,8 @@ export function SubscribersView() {
   const columns: Column<SubscriberRow>[] = [
     { key: 'email', header: 'Email', primary: true, cell: (r) => <span className="text-ink font-medium">{r.email}</span> },
     { key: 'status', header: 'Status', width: 'w-32', cell: (r) => <StatusBadge status={r.status} /> },
-    { key: 'city', header: 'City', width: 'w-32', cell: (r) => <span className="text-muted text-[13px]">{r.city?.name ?? '—'}</span> },
-    { key: 'source', header: 'Source', width: 'w-36', cell: (r) => <span className="text-muted text-[13px]">{r.source ?? '—'}</span> },
+    { key: 'city', header: 'City', width: 'w-32', cell: (r) => <span className="text-muted text-[13px]">{r.city?.name ?? '-'}</span> },
+    { key: 'source', header: 'Source', width: 'w-36', cell: (r) => <span className="text-muted text-[13px]">{r.source ?? '-'}</span> },
     { key: 'subscribedAt', header: 'Subscribed', width: 'w-32', cell: (r) => <span className="text-muted text-[12px]">{formatDate(r.subscribedAt)}</span> },
     {
       key: 'actions',
@@ -204,7 +204,7 @@ export function SubscribersView() {
                 placeholder="reader@example.com"
               />
             </Field>
-            <Field label="City edition" hint="Optional — for future city newsletters.">
+            <Field label="City edition" hint="Optional - for future city newsletters.">
               <Select
                 value={adding.cityId}
                 onChange={(e) => setAdding({ ...adding, cityId: e.target.value })}

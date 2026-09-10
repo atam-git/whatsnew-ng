@@ -1,7 +1,7 @@
 /**
  * Per-content-type field config that drives the CMS editor form. Base fields
  * (title, slug, excerpt, body, cover, tags, cities, SEO, publish) are handled by
- * <ContentForm> directly — this only describes the type-specific detail fields.
+ * <ContentForm> directly - this only describes the type-specific detail fields.
  */
 
 export type FieldKind =

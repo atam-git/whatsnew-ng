@@ -5,7 +5,7 @@ import { CONTENT_PATHS } from '@/lib/api/content';
 import { ShelfHeading } from './shelf';
 
 /**
- * "Most Recent": a balanced 50/50 split — one large lead card on the left with
+ * "Most Recent": a balanced 50/50 split - one large lead card on the left with
  * the headline over the image, four compact cards evenly stacked on the right.
  */
 export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; viewAllHref?: string }) {

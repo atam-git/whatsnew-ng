@@ -5,7 +5,7 @@ import { RichText, extractHeadings } from './rich-text';
 
 /**
  * Shared shell for the plain legal / policy pages (Privacy, Terms). The whole
- * page is the CMS `body` — this just wraps it in a calm, readable layout with
+ * page is the CMS `body` - this just wraps it in a calm, readable layout with
  * an "on this page" contents list built from the body's headings.
  */
 export async function LegalPage({ slug }: { slug: string }) {

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -127,30 +128,22 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
 
   return (
     <div className="bg-canvas flex min-h-screen">
-      {/* sidebar — desktop */}
+      {/* sidebar - desktop */}
       <aside className="border-line bg-surface fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r lg:flex">
         <Link href="/cms" className="border-line flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <img
-            src="/Whatsnew.ng.png"
-            alt="Whatsnew.ng"
-            className="h-10 w-auto"
-          />
+          <Image src="/Whatsnew.ng.png" alt="Whatsnew.ng" width={72} height={48} className="h-10 w-auto" />
           <span className="text-brand-600 text-xs font-semibold uppercase tracking-wide">CMS</span>
         </Link>
         {nav}
       </aside>
 
-      {/* sidebar — mobile drawer */}
+      {/* sidebar - mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="bg-ink/40 absolute inset-0" onClick={() => setOpen(false)} />
           <aside className="border-line bg-surface absolute inset-y-0 left-0 flex w-64 flex-col border-r">
             <div className="border-line flex h-14 items-center justify-between border-b px-4">
-              <img
-                src="/Whatsnew.ng.png"
-                alt="Whatsnew.ng"
-                className="h-10 w-auto"
-              />
+              <Image src="/Whatsnew.ng.png" alt="Whatsnew.ng" width={72} height={48} className="h-10 w-auto" />
               <button onClick={() => setOpen(false)} aria-label="Close menu">
                 <X className="h-5 w-5" />
               </button>

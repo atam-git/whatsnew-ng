@@ -45,7 +45,7 @@ export const getHomepage = (city?: string, state?: string) => {
 export const getCities = () =>
   apiGet<City[]>('/cities?activeOnly=true', { next: { revalidate: 300, tags: ['cities'] } });
 
-/** Distinct states that currently have published content — for the header filter. */
+/** Distinct states that currently have published content - for the header filter. */
 export const getStates = () =>
   apiGet<string[]>('/cities/states', { next: { revalidate: 300, tags: ['states'] } });
 

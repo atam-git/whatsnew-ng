@@ -44,14 +44,24 @@ export async function generateMetadata({
       title,
       description,
       alternates: { canonical: `/?state=${encodeURIComponent(state)}` },
-      openGraph: { type: 'website', title: `${title} · Whatsnew.ng`, description },
-      twitter: { card: 'summary_large_image', title: `${title} · Whatsnew.ng`, description },
+      openGraph: {
+        type: 'website',
+        title: `${title} · Whatsnew.ng`,
+        description,
+        images: ['/og-default.png'],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${title} · Whatsnew.ng`,
+        description,
+        images: ['/og-default.png'],
+      },
     };
   }
   return {
-    // Inherits title/description from the root layout.
+    // Inherits title/description/images from the root layout.
     alternates: { canonical: '/' },
-    openGraph: { url: env.siteUrl },
+    openGraph: { url: env.siteUrl, images: ['/og-default.png'] },
   };
 }
 
@@ -62,7 +72,7 @@ export default async function HomePage({
 }) {
   const { city, state } = await searchParams;
 
-  // Live CMS data only — no dummy fallback (that leaked fake tags like
+  // Live CMS data only - no dummy fallback (that leaked fake tags like
   // "Health Tech" whenever the API blipped). An empty API response just
   // renders the fixed sections.
   const shelves = await getHomepage(city, state).catch(() => []);

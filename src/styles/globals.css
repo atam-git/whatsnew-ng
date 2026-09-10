@@ -17,7 +17,7 @@
   --color-surface: #ffffff;
   --color-canvas: #f7f8fa;
 
-  /* semantic — used by the CMS (status badges, destructive actions, alerts) */
+  /* semantic - used by the CMS (status badges, destructive actions, alerts) */
   --color-success-50: #ecfdf3;
   --color-success-600: #059669;
   --color-success-700: #047857;
@@ -47,7 +47,7 @@ body {
   line-height: 1.6;
 }
 
-/* Tiptap editor content (CMS) — Tailwind's reset strips these otherwise */
+/* Tiptap editor content (CMS) - Tailwind's reset strips these otherwise */
 .prose-cms h2 {
   font-family: var(--font-heading);
   font-size: 1.4em;

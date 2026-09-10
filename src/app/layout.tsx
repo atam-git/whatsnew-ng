@@ -16,12 +16,12 @@ const dmSans = DM_Sans({
 });
 
 const DESCRIPTION =
-  "What's new in Nigeria — the places, people, releases and openings worth knowing about, updated every week.";
+  "What's new in Nigeria - the places, people, releases and openings worth knowing about, updated every week.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: {
-    default: 'Whatsnew.ng — what’s new in Nigeria',
+    default: 'Whatsnew.ng - what’s new in Nigeria',
     template: '%s · Whatsnew.ng',
   },
   description: DESCRIPTION,
@@ -29,14 +29,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Whatsnew.ng',
-    title: 'Whatsnew.ng — what’s new in Nigeria',
+    title: 'Whatsnew.ng - what’s new in Nigeria',
     description: DESCRIPTION,
     url: env.siteUrl,
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'Whatsnew.ng' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Whatsnew.ng',
     description: DESCRIPTION,
+    images: ['/og-default.png'],
   },
 };
 

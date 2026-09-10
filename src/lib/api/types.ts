@@ -1,5 +1,5 @@
 /**
- * Hand-written API types — enough to build against today.
+ * Hand-written API types - enough to build against today.
  *
  * When the backend is running, `npm run api:types` regenerates
  * `schema.d.ts` from its OpenAPI spec; migrate these to `import type` from

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import type { City } from '@/lib/api/types';
@@ -119,7 +120,7 @@ export function SiteHeader({
     href: `/?state=${encodeURIComponent(name)}`,
   }));
 
-  // CMS-driven header nav — plain links only.
+  // CMS-driven header nav - plain links only.
   const header: NavItem[] = nav?.HEADER ?? [];
   const topLinks = header.length
     ? header.filter((i) => i.label.toLowerCase() !== 'topics').map((i) => ({ label: i.label, href: i.href }))
@@ -129,9 +130,12 @@ export function SiteHeader({
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-line bg-surface">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105">
-          <img
+          <Image
             src="/Whatsnew.ng.png"
             alt="Whatsnew.ng"
+            width={72}
+            height={48}
+            priority
             className="h-12 w-auto"
           />
         </Link>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'FAQ',
   description:
-    'How Whatsnew.ng works — how we pick what runs, when the newsletter goes out, how to submit a listing, and how to get in touch.',
+    'How Whatsnew.ng works - how we pick what runs, when the newsletter goes out, how to submit a listing, and how to get in touch.',
   alternates: { canonical: '/faq' },
 };
 
@@ -13,7 +13,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'What is Whatsnew.ng?',
     a: (
       <>
-        A weekly guide to what&apos;s genuinely new in Nigeria — new restaurants, hotels, events,
+        A weekly guide to what&apos;s genuinely new in Nigeria - new restaurants, hotels, events,
         music, video, startups, businesses, faith events, opportunities and long-form reads,
         organised by city. Everything is curated by our team; there are no public accounts,
         comments or reviews.
@@ -26,7 +26,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
       <>
         A person chooses every item. We only run things that are genuinely new for the year, and we
         check each entry against an official announcement or the business directly before it goes
-        live — keeping the source link wherever we can. Nothing from the public submission form is
+        live - keeping the source link wherever we can. Nothing from the public submission form is
         published automatically.
       </>
     ),
@@ -61,7 +61,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
         <Link href="/submit" className="text-brand-600 hover:underline">
           submission form
         </Link>
-        . It&apos;s free. An editor reviews every submission — being submitted doesn&apos;t
+        . It&apos;s free. An editor reviews every submission - being submitted doesn&apos;t
         guarantee a listing, and we may edit details for accuracy.
       </>
     ),
@@ -74,8 +74,8 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'Which cities do you cover?',
     a: (
       <>
-        All 36 states and the FCT. Coverage is deepest in the larger hubs — Lagos, Abuja, Port
-        Harcourt, Ibadan, Kano and Enugu — and grows as we find more. Use the Location menu to filter
+        All 36 states and the FCT. Coverage is deepest in the larger hubs - Lagos, Abuja, Port
+        Harcourt, Ibadan, Kano and Enugu - and grows as we find more. Use the Location menu to filter
         by state.
       </>
     ),
@@ -97,7 +97,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'Can we advertise or partner with you?',
     a: (
       <>
-        Yes — newsletter placements, sponsorships and city guides. See{' '}
+        Yes - newsletter placements, sponsorships and city guides. See{' '}
         <Link href="/work-with-us" className="text-brand-600 hover:underline">
           Work with us
         </Link>{' '}

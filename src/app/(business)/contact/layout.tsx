@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Questions, corrections, partnerships — reach the Whatsnew.ng team.',
+  description: 'Questions, corrections, partnerships - reach the Whatsnew.ng team.',
   alternates: { canonical: '/contact' },
 };
 

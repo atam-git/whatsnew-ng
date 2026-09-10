@@ -4,7 +4,7 @@ import { getPage } from '@/lib/api/pages';
 import { RichText } from './rich-text';
 
 /*
- * Work with Us — designed layout. `title` and the intro `body` come from the
+ * Work with Us - designed layout. `title` and the intro `body` come from the
  * CMS Pages editor; the structured blocks come from `page.data`. DEFAULTS below
  * are the fallback if a field is empty.
  */
@@ -15,7 +15,7 @@ const DEFAULTS = {
   lanes: [
     {
       label: 'Submit a listing',
-      desc: 'Opened somewhere new, or running an event? Send it in. An editor reviews every submission — nothing goes live automatically.',
+      desc: 'Opened somewhere new, or running an event? Send it in. An editor reviews every submission - nothing goes live automatically.',
       action: 'Submit a listing',
       href: '/submit',
       note: 'Free',
@@ -80,7 +80,7 @@ export async function WorkWithUsPage() {
         </div>
       </Bleed>
 
-      {/* Intro — editable body */}
+      {/* Intro - editable body */}
       {page.body ? (
         <section className="mx-auto max-w-2xl px-4 py-14 sm:py-16">
           <RichText doc={page.body} className="" />

@@ -24,7 +24,7 @@ export function SubmissionsView() {
   const [tab, setTab] = useState<'listings' | 'contact'>('listings');
   return (
     <div>
-      <PageHeader title="Submissions" subtitle="Public intake — nothing here is live until you promote it." />
+      <PageHeader title="Submissions" subtitle="Public intake - nothing here is live until you promote it." />
       <div className="border-line mb-5 flex gap-1 border-b">
         {TABS.map(([key, label]) => (
           <button
@@ -64,7 +64,7 @@ function Listings() {
     {
       key: 'title',
       header: 'Proposed title',
-      cell: (r) => <span className="text-muted-700 text-[13px]">{(r.payload?.title as string) || '—'}</span>,
+      cell: (r) => <span className="text-muted-700 text-[13px]">{(r.payload?.title as string) || '-'}</span>,
     },
     {
       key: 'from',

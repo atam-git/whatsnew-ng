@@ -82,10 +82,10 @@ export function SettingsView() {
               <Field label="Contact email" hint="Shown in the footer and Contact page">
                 <Input type="email" value={form.contactEmail} onChange={set('contactEmail')} placeholder="hello@whatsnew.ng" />
               </Field>
-              <Field label="Phone" hint="Optional — hidden if blank">
+              <Field label="Phone" hint="Optional - hidden if blank">
                 <Input value={form.phone} onChange={set('phone')} placeholder="+234 …" />
               </Field>
-              <Field label="Address line" hint="Optional — hidden if blank" className="sm:col-span-2">
+              <Field label="Address line" hint="Optional - hidden if blank" className="sm:col-span-2">
                 <Input value={form.addressLine} onChange={set('addressLine')} placeholder="Lagos, Nigeria" />
               </Field>
             </div>

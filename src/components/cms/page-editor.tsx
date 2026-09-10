@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePage, useSavePage } from '@/lib/cms/admin-hooks';
 import { PAGE_SCHEMAS, type PageField, type PageSection } from '@/lib/cms/page-schema';
 import { PageHeader, Card, Button, Field, Input, Textarea, useToast } from './ui';
-import { RichTextEditor } from './rich-text-editor';
+import { RichTextEditor } from './rich-text-editor-lazy';
 import { RepeaterField } from './repeater-field';
 import { StringListInput } from './field-renderer';
 
@@ -12,7 +12,7 @@ type Data = Record<string, unknown>;
 
 /**
  * Editor for a fixed static page (About, Privacy, Terms, Work with Us).
- * Content only — the slug is fixed and pages cannot be created or deleted here.
+ * Content only - the slug is fixed and pages cannot be created or deleted here.
  */
 export function PageEditor({ id }: { id: string }) {
   const toast = useToast();

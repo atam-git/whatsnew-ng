@@ -1,4 +1,4 @@
-# Whatsnew.ng — Frontend
+# Whatsnew.ng - Frontend
 
 Next.js 15 (App Router) · React 19 · Tailwind v4 · TypeScript.
 
@@ -21,7 +21,7 @@ src/
 │   ├── not-found.tsx
 │   ├── (business)/
 │   │   ├── layout.tsx          site header + footer, skip-link
-│   │   ├── page.tsx            homepage — renders CMS-curated shelves
+│   │   ├── page.tsx            homepage - renders CMS-curated shelves
 │   │   ├── [section]/
 │   │   │   ├── page.tsx        /hotels… = content listing · /about… = CMS Page
 │   │   │   └── [slug]/page.tsx content detail (+ generateMetadata)
@@ -45,7 +45,7 @@ src/
 │   │   ├── content.ts          typed endpoint helpers + ContentType→path map
 │   │   ├── types.ts            hand-written API types (until schema.d.ts is generated)
 │   │   └── schema.d.ts         generated from backend OpenAPI (gitignored)
-│   ├── auth/session.ts         getSession() — reads /auth/me with request cookies
+│   ├── auth/session.ts         getSession() - reads /auth/me with request cookies
 │   └── utils/                  cn(), date formatting
 └── styles/globals.css          Tailwind v4 @theme tokens (neutral placeholder palette)
 ```
@@ -77,5 +77,5 @@ npm run api:types              # reads ../backend/openapi.json → src/lib/api/s
 - Content create/edit forms (react-hook-form + zod) with a Tiptap editor for `body`.
 - Tiptap JSON → HTML renderer shared by public detail pages and CMS Pages.
 - Homepage curation drag-and-drop; media library grid + uploader.
-- Design pass — visual direction (which prototype / new) is still an open question;
+- Design pass - visual direction (which prototype / new) is still an open question;
   current styling is a neutral placeholder.

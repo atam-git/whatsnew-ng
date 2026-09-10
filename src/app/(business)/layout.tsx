@@ -1,5 +1,6 @@
 import { SiteFooter } from '@/components/business/site-footer';
 import { SiteHeader } from '@/components/business/site-header';
+import { SearchFab } from '@/components/business/search-fab';
 import { getCities, getStates } from '@/lib/api/content';
 import { getNavigation } from '@/lib/api/navigation';
 import { getSiteSettings } from '@/lib/api/site-settings';
@@ -25,6 +26,7 @@ export default async function BusinessLayout({ children }: { children: React.Rea
         {children}
       </main>
       <SiteFooter nav={nav} settings={settings} />
+      <SearchFab />
     </div>
   );
 }

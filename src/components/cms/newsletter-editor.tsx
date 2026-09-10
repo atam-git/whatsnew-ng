@@ -14,7 +14,7 @@ import {
 import { useCities } from '@/lib/cms/hooks';
 import { PageHeader, Card, Button, Field, Input, Textarea, Select, Dialog, useToast, useConfirm } from './ui';
 import { StatusBadge } from './ui/status-badge';
-import { RichTextEditor } from './rich-text-editor';
+import { RichTextEditor } from './rich-text-editor-lazy';
 import { ContentPicker } from './content-picker';
 
 interface Item {
@@ -163,7 +163,7 @@ export function NewsletterEditor({ id }: { id: string }) {
             }
           >
             {items.length === 0 ? (
-              <p className="text-muted text-[13px]">No items yet — autofill or search below.</p>
+              <p className="text-muted text-[13px]">No items yet - autofill or search below.</p>
             ) : (
               <ul className="divide-line divide-y">
                 {items.map((it, idx) => (

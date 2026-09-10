@@ -13,7 +13,7 @@ import { uploadMedia } from '@/lib/cms/hooks';
 import { PageHeader, Button, SearchInput, Field, Input, Dialog, EmptyState, Spinner, useToast, useConfirm } from './ui';
 import { formatDate } from '@/lib/utils/format';
 
-const kb = (n?: number | null) => (n == null ? '—' : n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
+const kb = (n?: number | null) => (n == null ? '-' : n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
 
 export function MediaLibrary() {
   const [q, setQ] = useState('');
@@ -147,7 +147,7 @@ function MediaDetail({ media, onClose }: { media: MediaRow; onClose: () => void 
           <dl className="text-[12px]">
             <div className="flex justify-between py-1">
               <dt className="text-muted">Dimensions</dt>
-              <dd>{media.width && media.height ? `${media.width}×${media.height}` : '—'}</dd>
+              <dd>{media.width && media.height ? `${media.width}×${media.height}` : '-'}</dd>
             </div>
             <div className="flex justify-between py-1">
               <dt className="text-muted">Size</dt>

@@ -20,11 +20,23 @@ export function NewsletterList() {
     { key: 'status', header: 'Status', cell: (r) => <StatusBadge status={r.status} /> },
     { key: 'items', header: 'Items', width: 'w-16', cell: (r) => <span className="tabular-nums">{r._count?.items ?? 0}</span> },
     {
+      key: 'engagement',
+      header: 'Sent · Opens · Clicks',
+      cell: (r) =>
+        r.status === 'SENT' ? (
+          <span className="text-muted text-[12px] tabular-nums">
+            {r.recipientCount ?? 0} · {r.openCount ?? 0} · {r.clickCount ?? 0}
+          </span>
+        ) : (
+          <span className="text-muted text-[12px]">-</span>
+        ),
+    },
+    {
       key: 'when',
       header: 'Sent / scheduled',
       cell: (r) => (
         <span className="text-muted text-[12px]">
-          {r.sentAt ? formatDate(r.sentAt) : r.scheduledFor ? formatDate(r.scheduledFor) : '—'}
+          {r.sentAt ? formatDate(r.sentAt) : r.scheduledFor ? formatDate(r.scheduledFor) : '-'}
         </span>
       ),
     },
@@ -83,7 +95,7 @@ export function NewsletterList() {
             autoFocus
             value={subject ?? ''}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="What's new — Wed 10 Sep"
+            placeholder="What's new - Wed 10 Sep"
           />
         </Field>
       </Dialog>

@@ -28,7 +28,7 @@ export function CitiesView() {
       </span>
     ) },
     { key: 'slug', header: 'Slug', cell: (r) => <span className="text-muted text-[13px]">{r.slug}</span> },
-    { key: 'state', header: 'State', cell: (r) => <span className="text-[13px]">{r.state || '—'}</span> },
+    { key: 'state', header: 'State', cell: (r) => <span className="text-[13px]">{r.state || '-'}</span> },
     { key: 'sortOrder', header: 'Order', width: 'w-16', cell: (r) => <span className="text-muted tabular-nums">{r.sortOrder}</span> },
     { key: 'active', header: 'Active', width: 'w-16', cell: (r) => (r.isActive ? 'Yes' : 'No') },
   ];

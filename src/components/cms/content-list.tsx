@@ -71,14 +71,14 @@ export function ContentList({ type }: { type: string }) {
       key: 'publishDate',
       header: 'Publish date',
       width: 'w-32',
-      cell: (r) => <span className="text-muted text-[13px]">{formatDate(r.publishDate) || '—'}</span>,
+      cell: (r) => <span className="text-muted text-[13px]">{formatDate(r.publishDate) || '-'}</span>,
     },
     {
       key: 'cities',
       header: 'Cities',
       width: 'w-40',
       cell: (r) => (
-        <span className="text-muted text-[13px]">{r.cities.map((c) => c.name).join(', ') || '—'}</span>
+        <span className="text-muted text-[13px]">{r.cities.map((c) => c.name).join(', ') || '-'}</span>
       ),
     },
   ];

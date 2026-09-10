@@ -27,7 +27,7 @@ export function PagesList() {
     <div>
       <PageHeader
         title="Pages"
-        subtitle="The site's standing pages. Edit their content here — they can't be added or removed."
+        subtitle="The site's standing pages. Edit their content here - they can't be added or removed."
       />
       <DataTable
         columns={columns}

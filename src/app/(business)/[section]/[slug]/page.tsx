@@ -65,7 +65,7 @@ export async function generateMetadata({
   const description = item.seoDescription ?? item.excerpt ?? undefined;
   const images = item.coverImage?.url
     ? [{ url: item.coverImage.url, alt: item.coverImage.alt ?? item.title }]
-    : undefined;
+    : [{ url: '/og-default.png', width: 1200, height: 630, alt: 'Whatsnew.ng' }];
   return {
     title,
     description,
@@ -198,7 +198,7 @@ export default async function DetailPage({
         </div>
       )}
 
-      {/* Byline — authorship, not interactive */}
+      {/* Byline - authorship, not interactive */}
       {item.read?.author && (
         <p className="mt-5 flex items-center gap-2 text-sm text-gray-500">
           <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@ export default async function DetailPage({
         </p>
       )}
 
-      {/* Tags (filter) + source (attribution) — visually distinct from each other */}
+      {/* Tags (filter) + source (attribution) - visually distinct from each other */}
       {(item.tags?.length || item.source) && (
         <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-gray-200 pb-6">
           {item.tags?.map((tag) => (
@@ -292,7 +292,7 @@ export default async function DetailPage({
               >
                 <Image
                   src={g.media.url}
-                  alt={g.media.alt ?? `${item.title} — photo ${i + 1}`}
+                  alt={g.media.alt ?? `${item.title} - photo ${i + 1}`}
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 50vw, 33vw"
