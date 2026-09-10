@@ -66,17 +66,17 @@ function Dropdown({
             setIsOpen(false);
           }
         }}
-        className="font-heading text-ink hover:text-brand-600 flex h-11 items-center gap-1.5 text-[16px] font-bold transition"
+        className="font-heading text-ink hover:text-brand-600 flex h-11 items-center gap-1.5 text-[16px] font-bold transition-colors duration-200"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
         {label}
-        <ChevronDownIcon />
+        <ChevronDownIcon className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <div
-          className="absolute left-0 top-full z-50 mt-2 min-w-[320px] rounded-lg border border-line bg-surface shadow-xl"
+          className="absolute left-0 top-full z-50 mt-2 min-w-[320px] animate-in fade-in slide-in-from-top-2 duration-200 rounded-lg border border-line bg-surface shadow-xl"
           onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
         >
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 p-5">
@@ -85,8 +85,8 @@ function Dropdown({
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`block rounded px-3 py-2 text-[15px] transition hover:text-brand-600 ${
-                  item.active ? 'font-semibold text-brand-600' : 'text-ink'
+                className={`block rounded px-3 py-2 text-[15px] transition-all duration-150 hover:bg-gray-50 hover:translate-x-0.5 ${
+                  item.active ? 'font-semibold text-brand-600' : 'text-ink hover:text-brand-600'
                 }`}
               >
                 {item.label}
@@ -128,7 +128,7 @@ export function SiteHeader({
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-line bg-surface">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center">
+        <Link href="/" className="flex shrink-0 items-center transition-transform hover:scale-105">
           <img
             src="/Whatsnew.ng.png"
             alt="Whatsnew.ng"
@@ -143,7 +143,7 @@ export function SiteHeader({
             <Link
               key={item.href}
               href={item.href}
-              className="font-heading text-ink hover:text-brand-600 text-[16px] font-bold transition"
+              className="font-heading text-ink hover:text-brand-600 relative text-[16px] font-bold transition-colors duration-200 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-brand-600 after:transition-all after:duration-300 hover:after:w-full"
             >
               {item.label}
             </Link>
@@ -154,7 +154,7 @@ export function SiteHeader({
 
         <Link
           href="/subscribe"
-          className="bg-brand-600 hover:bg-brand-700 inline-flex h-11 shrink-0 items-center justify-center rounded-full px-6 text-[16px] font-semibold text-white transition"
+          className="bg-brand-600 hover:bg-brand-700 inline-flex h-11 shrink-0 items-center justify-center rounded-full px-6 text-[16px] font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md"
         >
           Subscribe
         </Link>

@@ -23,6 +23,7 @@ import {
   LayoutTemplate,
   MapPin,
   Link2,
+  Settings,
   Menu,
   X,
 } from 'lucide-react';
@@ -54,6 +55,7 @@ const MANAGE = [
   ['/cms/newsletter', 'Newsletter', Mail],
   ['/cms/subscribers', 'Subscribers', Users],
   ['/cms/submissions', 'Submissions', Inbox],
+  ['/cms/settings', 'Settings', Settings],
 ] as const;
 
 function NavLink({

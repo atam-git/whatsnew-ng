@@ -12,20 +12,20 @@ export function FeaturedArticle({ item }: { item: ContentCard }) {
 
   return (
     <section className="flex flex-col gap-6">
-      <p className="text-muted text-xs font-semibold tracking-[0.04em] uppercase">
+      <p className="text-muted animate-in fade-in slide-in-from-bottom-3 duration-500 text-xs font-semibold tracking-[0.04em] uppercase">
         Featured Article
       </p>
 
       <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
-        <div className="flex flex-col gap-3.5 lg:col-span-5">
+        <div className="flex flex-col gap-3.5 lg:col-span-5 animate-in fade-in slide-in-from-left-8 duration-700">
           <Link
             href={tagHref}
-            className="text-brand-700 w-fit text-[15px] font-semibold tracking-[0.02em] hover:underline"
+            className="text-brand-700 w-fit text-[15px] font-semibold tracking-[0.02em] transition-colors hover:text-brand-600 hover:underline"
           >
             {tagLabel}
           </Link>
           <Link href={href} className="group">
-            <h2 className="font-heading text-ink group-hover:text-brand-600 text-3xl leading-[1.12] font-bold tracking-tight transition sm:text-4xl lg:text-[42px]">
+            <h2 className="font-heading text-ink group-hover:text-brand-600 text-3xl leading-[1.12] font-bold tracking-tight transition-colors duration-300 sm:text-4xl lg:text-[42px]">
               {item.title}
             </h2>
           </Link>
@@ -39,7 +39,7 @@ export function FeaturedArticle({ item }: { item: ContentCard }) {
 
         <Link
           href={href}
-          className="bg-canvas relative block aspect-video overflow-hidden rounded-2xl lg:col-span-7"
+          className="bg-canvas group relative block aspect-video overflow-hidden rounded-2xl lg:col-span-7 animate-in fade-in slide-in-from-right-8 duration-700"
         >
           {item.coverImage?.url && (
             <Image
@@ -47,7 +47,7 @@ export function FeaturedArticle({ item }: { item: ContentCard }) {
               alt={item.coverImage.alt ?? item.title}
               fill
               sizes="(max-width: 1024px) 100vw, 58vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
               priority
             />
           )}

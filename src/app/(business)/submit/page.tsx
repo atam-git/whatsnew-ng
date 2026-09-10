@@ -87,10 +87,10 @@ export default function SubmitListingPage() {
       {/* Compact Header */}
       <div className="border-b border-gray-200 bg-white/80 backdrop-blur-sm py-8">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-          <h1 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
+          <h1 className="font-heading animate-in fade-in slide-in-from-bottom-4 duration-700 text-3xl font-bold text-gray-900 sm:text-4xl">
             Submit a Listing
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+          <p className="mx-auto mt-3 max-w-2xl text-gray-600 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
             Share something new and noteworthy — we&apos;ll review and publish if it&apos;s a good fit
           </p>
         </div>
@@ -98,7 +98,7 @@ export default function SubmitListingPage() {
 
       {/* Compact Form */}
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
-        <form onSubmit={onSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg sm:p-8">
+        <form onSubmit={onSubmit} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-shadow duration-300 hover:shadow-xl sm:p-8">
           {/* Type Selection - Compact Pills */}
           <div className="mb-6">
             <label className="mb-3 block text-sm font-semibold text-gray-900">
@@ -118,7 +118,7 @@ export default function SubmitListingPage() {
                     required
                     className="peer sr-only"
                   />
-                  <div className="flex items-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-2 text-sm font-medium transition peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:border-gray-300">
+                  <div className="flex items-center gap-2 rounded-full border-2 border-gray-200 bg-white px-4 py-2 text-sm font-medium transition-all duration-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 peer-checked:scale-105 hover:border-gray-300 hover:shadow-sm">
                     <span>{type.icon}</span>
                     <span>{type.label}</span>
                   </div>
@@ -139,7 +139,7 @@ export default function SubmitListingPage() {
                 type="text"
                 required
                 placeholder="e.g., The Jazz Cafe"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
 
@@ -152,7 +152,7 @@ export default function SubmitListingPage() {
                 name="excerpt"
                 rows={2}
                 placeholder="One or two lines about what makes it noteworthy..."
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
 
@@ -165,7 +165,7 @@ export default function SubmitListingPage() {
                 name="externalUrl"
                 type="url"
                 placeholder="https://..."
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
 
@@ -183,7 +183,7 @@ export default function SubmitListingPage() {
                 type="text"
                 required
                 placeholder="John Doe"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
 
@@ -197,7 +197,7 @@ export default function SubmitListingPage() {
                 type="email"
                 required
                 placeholder="you@example.com"
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
 
@@ -210,7 +210,7 @@ export default function SubmitListingPage() {
                 name="submitterPhone"
                 type="tel"
                 placeholder="+234..."
-                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-all duration-200 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:scale-[1.01]"
               />
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function SubmitListingPage() {
             <button
               type="submit"
               disabled={state === 'loading'}
-              className="inline-flex items-center rounded-full bg-red-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center rounded-full bg-red-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:scale-105 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {state === 'loading' ? (
                 <>
@@ -243,7 +243,7 @@ export default function SubmitListingPage() {
           </div>
 
           {state === 'error' && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+            <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300 rounded-lg border border-red-200 bg-red-50 p-3">
               <p className="text-sm font-medium text-red-800">
                 Something went wrong. Please check your connection and try again.
               </p>

@@ -102,8 +102,8 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
 
   return (
     <div>
-      <h1 className="text-2xl font-bold capitalize">{meta?.heading ?? section}</h1>
-      {meta && <p className="text-muted mt-2 max-w-2xl">{meta.description}</p>}
+      <h1 className="animate-in fade-in slide-in-from-bottom-4 duration-700 text-2xl font-bold capitalize">{meta?.heading ?? section}</h1>
+      {meta && <p className="text-muted animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 mt-2 max-w-2xl">{meta.description}</p>}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((item) => (
           <ContentCard key={item.id} item={item} />

@@ -609,3 +609,33 @@ export function useDeleteShelf() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['shelves'] }),
   });
 }
+
+// ── Site settings (footer + Contact page: contact email, address, socials) ────
+
+export interface SiteSettingsRow {
+  contactEmail: string;
+  phone: string | null;
+  addressLine: string | null;
+  twitterUrl: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  tiktokUrl: string | null;
+  youtubeUrl: string | null;
+  updatedAt?: string;
+}
+
+export function useSiteSettings() {
+  return useQuery({
+    queryKey: ['site-settings'],
+    queryFn: () => cmsFetch<SiteSettingsRow>('/settings/site'),
+  });
+}
+
+export function useSaveSiteSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<SiteSettingsRow>) =>
+      cmsFetch<SiteSettingsRow>('/settings/site', { method: 'PATCH', json: data }),
+    onSuccess: (r) => qc.setQueryData(['site-settings'], r),
+  });
+}

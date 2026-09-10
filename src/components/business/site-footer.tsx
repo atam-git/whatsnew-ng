@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { NavTree } from '@/lib/api/navigation';
+import type { SiteSettings } from '@/lib/api/site-settings';
 
 // Fallbacks used only if the CMS navigation is empty / unreachable.
 const SECTIONS = [
@@ -23,6 +24,7 @@ const LEGAL = [
   { label: 'Terms of use', href: '/terms' },
 ];
 
+// Fallback used only when the settings endpoint is unreachable.
 const SOCIAL = [
   { name: 'Facebook', href: 'https://facebook.com/whatsnewng', icon: 'facebook' },
   { name: 'Instagram', href: 'https://instagram.com/whatsnewng', icon: 'instagram' },
@@ -30,6 +32,26 @@ const SOCIAL = [
   { name: 'TikTok', href: 'https://tiktok.com/@whatsnewng', icon: 'tiktok' },
   { name: 'YouTube', href: 'https://youtube.com/@whatsnewng', icon: 'youtube' },
 ];
+
+const FALLBACK_EMAIL = 'hello@whatsnew.ng';
+const FALLBACK_ADDRESS = 'Lagos, Nigeria';
+
+/** Social links from the CMS settings (null field = hidden); constants only as
+ *  a last-resort fallback when settings failed to load. */
+function socialLinks(settings?: SiteSettings | null) {
+  if (!settings) return SOCIAL;
+  return (
+    [
+      ['Facebook', 'facebook', settings.facebookUrl],
+      ['Instagram', 'instagram', settings.instagramUrl],
+      ['Twitter', 'twitter', settings.twitterUrl],
+      ['TikTok', 'tiktok', settings.tiktokUrl],
+      ['YouTube', 'youtube', settings.youtubeUrl],
+    ] as const
+  )
+    .filter(([, , href]) => !!href)
+    .map(([name, icon, href]) => ({ name, icon, href: href as string }));
+}
 
 function SocialIcon({ icon }: { icon: string }) {
   const iconClass = "h-5 w-5";
@@ -77,12 +99,17 @@ function SocialIcon({ icon }: { icon: string }) {
   return null;
 }
 
-export function SiteFooter({ nav }: { nav?: NavTree }) {
+export function SiteFooter({ nav, settings }: { nav?: NavTree; settings?: SiteSettings | null }) {
   const pick = (items: { label: string; href: string; isExternal?: boolean }[] | undefined) =>
     items && items.length ? items.map((i) => ({ label: i.label, href: i.href })) : null;
   const sections = pick(nav?.FOOTER_PRIMARY) ?? SECTIONS;
   const company = pick(nav?.FOOTER_COMPANY) ?? COMPANY;
   const legal = pick(nav?.FOOTER_LEGAL) ?? LEGAL;
+
+  const socials = socialLinks(settings);
+  const email = settings?.contactEmail || FALLBACK_EMAIL;
+  const address = settings ? settings.addressLine : FALLBACK_ADDRESS;
+  const phone = settings?.phone ?? null;
 
   return (
     <footer className="bg-[#5c1f1f] mt-20 text-white">
@@ -94,7 +121,7 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
               <img
                 src="/Whatsnew.ng.png"
                 alt="Whatsnew.ng"
-                className="h-8 w-auto brightness-0 invert"
+                className="h-8 w-auto"
               />
             </Link>
             <p className="mt-4 max-w-xs text-[15px] leading-relaxed text-white/80">
@@ -104,20 +131,35 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
               Whatsnew covers food, music, business and everything opening near you.
             </p>
             
-            {/* Social Icons */}
+            {/* Social Icons — real links come from CMS settings; the disabled
+                "coming soon" buttons only show if settings failed to load. */}
             <div className="mt-6 flex gap-3">
-              {SOCIAL.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-                  aria-label={social.name}
-                >
-                  <SocialIcon icon={social.icon} />
-                </a>
-              ))}
+              {settings
+                ? socials.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                      aria-label={social.name}
+                    >
+                      <SocialIcon icon={social.icon} />
+                    </a>
+                  ))
+                : SOCIAL.map((social) => (
+                    <button
+                      key={social.name}
+                      title="Coming soon"
+                      className="group relative flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                      aria-label={`${social.name} - Coming soon`}
+                    >
+                      <SocialIcon icon={social.icon} />
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-white px-2 py-1 text-xs text-gray-900 opacity-0 transition group-hover:opacity-100">
+                        Coming soon
+                      </span>
+                    </button>
+                  ))}
             </div>
           </div>
 
@@ -131,7 +173,7 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-[15px] text-white/80 transition hover:text-white"
+                    className="text-[15px] text-white/80 transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
                   >
                     {item.label}
                   </Link>
@@ -150,7 +192,7 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-[15px] text-white/80 transition hover:text-white"
+                    className="text-[15px] text-white/80 transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
                   >
                     {item.label}
                   </Link>
@@ -169,7 +211,7 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-[15px] text-white/80 transition hover:text-white"
+                    className="text-[15px] text-white/80 transition-all duration-200 hover:text-white hover:translate-x-1 inline-block"
                   >
                     {item.label}
                   </Link>
@@ -184,31 +226,58 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
               Contact
             </h3>
             <ul className="mt-4 space-y-3">
-              <li className="flex items-start gap-2 text-[15px] text-white/80">
-                <svg className="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Lagos, Nigeria</span>
-              </li>
+              {address && (
+                <li className="flex items-start gap-2 text-[15px] text-white/80">
+                  <svg className="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>{address}</span>
+                </li>
+              )}
               <li className="flex items-start gap-2">
                 <svg className="mt-0.5 h-5 w-5 shrink-0 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 <a
-                  href="mailto:hello@whatsnew.ng"
+                  href={`mailto:${email}`}
                   className="text-[15px] text-white/80 transition hover:text-white"
                 >
-                  hello@whatsnew.ng
+                  {email}
                 </a>
               </li>
+              {phone && (
+                <li className="flex items-start gap-2">
+                  <svg className="mt-0.5 h-5 w-5 shrink-0 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <a
+                    href={`tel:${phone.replace(/\s+/g, '')}`}
+                    className="text-[15px] text-white/80 transition hover:text-white"
+                  >
+                    {phone}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </div>
 
         {/* Copyright */}
         <div className="mt-12 border-t border-white/10 pt-8 text-center text-sm text-white/60">
-          © {new Date().getFullYear()} Whatsnew.ng. All rights reserved.
+          <p>© {new Date().getFullYear()} Whatsnew.ng. All rights reserved.</p>
+          <p className="mt-2">
+            Built with ❤️ by{' '}
+            <a
+              href="https://connectnigeria.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white transition"
+            >
+              connectnigeria.com
+            </a>{' '}
+            powered by Jesus Christ.
+          </p>
         </div>
       </div>
     </footer>

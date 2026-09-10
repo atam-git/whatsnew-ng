@@ -84,13 +84,15 @@ export async function AboutPage() {
       {/* Hero */}
       <Bleed className="bg-brand-50 border-brand-600/10 -mt-8 border-b">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:py-24">
-          <SectionLabel>About Whatsnew.ng</SectionLabel>
-          <h1 className="font-heading text-ink mt-3 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
+          <SectionLabel>
+            <span className="animate-in fade-in slide-in-from-bottom-3 duration-500">About Whatsnew.ng</span>
+          </SectionLabel>
+          <h1 className="font-heading text-ink animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 mt-3 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
             {page.title}
           </h1>
-          <p className="text-muted-700 mx-auto mt-5 max-w-2xl text-lg leading-8">{heroLede}</p>
+          <p className="text-muted-700 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 mx-auto mt-5 max-w-2xl text-lg leading-8">{heroLede}</p>
           {quickFacts.length > 0 && (
-            <div className="text-muted-700 mt-7 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm">
+            <div className="text-muted-700 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 mt-7 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm">
               {quickFacts.map((f, i) => (
                 <span key={f} className="flex items-center gap-3">
                   {i > 0 && (
@@ -131,13 +133,13 @@ export async function AboutPage() {
                 <Link
                   key={item.href || i}
                   href={item.href || '#'}
-                  className="group border-line bg-surface hover:border-brand-500/40 rounded-xl border p-6 transition hover:shadow-sm"
+                  className="group border-line bg-surface hover:border-brand-500/40 rounded-xl border p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="font-heading text-ink group-hover:text-brand-700 text-[15px] font-semibold transition">
+                    <h3 className="font-heading text-ink group-hover:text-brand-700 text-[15px] font-semibold transition-colors duration-200">
                       {item.label}
                     </h3>
-                    <span className="text-muted group-hover:text-brand-600 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100">
+                    <span className="text-muted group-hover:text-brand-600 opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100">
                       →
                     </span>
                   </div>
@@ -178,10 +180,10 @@ export async function AboutPage() {
       {/* By the numbers */}
       {stats.length > 0 && (
         <section className="mx-auto max-w-3xl px-4 pb-14 sm:pb-20">
-          <div className="border-line bg-surface divide-line grid grid-cols-3 divide-x overflow-hidden rounded-2xl border">
+          <div className="border-line bg-surface divide-line grid grid-cols-3 divide-x overflow-hidden rounded-2xl border transition-shadow duration-300 hover:shadow-lg">
             {stats.map((s, i) => (
-              <div key={s.label || i} className="px-4 py-7 text-center sm:px-6">
-                <div className="font-heading text-brand-600 text-3xl font-bold">{s.value}</div>
+              <div key={s.label || i} className="group px-4 py-7 text-center transition-colors duration-200 hover:bg-brand-50 sm:px-6">
+                <div className="font-heading text-brand-600 transition-transform duration-300 group-hover:scale-110 text-3xl font-bold">{s.value}</div>
                 <div className="text-ink mt-1 text-sm font-medium">{s.label}</div>
                 <div className="text-muted mt-0.5 text-xs">{s.sub}</div>
               </div>
@@ -203,7 +205,7 @@ export async function AboutPage() {
             {cta.buttonLabel && (
               <Link
                 href={cta.href || '/subscribe'}
-                className="text-brand-700 mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold transition hover:bg-brand-50"
+                className="text-brand-700 mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:bg-brand-50 hover:scale-105 hover:shadow-md"
               >
                 {cta.buttonLabel}
               </Link>

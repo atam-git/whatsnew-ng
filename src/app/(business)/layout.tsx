@@ -2,12 +2,14 @@ import { SiteFooter } from '@/components/business/site-footer';
 import { SiteHeader } from '@/components/business/site-header';
 import { getCities, getStates } from '@/lib/api/content';
 import { getNavigation } from '@/lib/api/navigation';
+import { getSiteSettings } from '@/lib/api/site-settings';
 
 export default async function BusinessLayout({ children }: { children: React.ReactNode }) {
-  const [cities, states, nav] = await Promise.all([
+  const [cities, states, nav, settings] = await Promise.all([
     getCities().catch(() => []),
     getStates().catch(() => []),
     getNavigation().catch(() => ({})),
+    getSiteSettings().catch(() => null),
   ]);
 
   return (
@@ -22,7 +24,7 @@ export default async function BusinessLayout({ children }: { children: React.Rea
       <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 pt-28 sm:px-6 lg:px-8">
         {children}
       </main>
-      <SiteFooter nav={nav} />
+      <SiteFooter nav={nav} settings={settings} />
     </div>
   );
 }

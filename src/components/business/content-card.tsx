@@ -44,12 +44,12 @@ export function ContentCard({ item }: { item: Card }) {
   const meta = cardMeta(item);
 
   return (
-    <article className="group relative">
+    <article className="group relative transition-transform duration-300 hover:-translate-y-1">
       <Link
         href={href}
         aria-hidden
         tabIndex={-1}
-        className="bg-canvas relative block aspect-[4/3] overflow-hidden rounded-xl"
+        className="bg-canvas relative block aspect-[4/3] overflow-hidden rounded-xl shadow-sm transition-shadow duration-300 group-hover:shadow-md"
       >
         {item.coverImage?.url && (
           <Image
@@ -57,7 +57,7 @@ export function ContentCard({ item }: { item: Card }) {
             alt={item.coverImage.alt ?? item.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover transition duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
         )}
       </Link>
@@ -65,7 +65,7 @@ export function ContentCard({ item }: { item: Card }) {
       <div className="mt-3">
         <Link
           href={eyebrowHref}
-          className={`relative z-10 inline-block text-[11px] font-bold uppercase tracking-[0.08em] hover:underline ${eyebrowColor}`}
+          className={`relative z-10 inline-block text-[11px] font-bold uppercase tracking-[0.08em] transition-colors hover:opacity-80 hover:underline ${eyebrowColor}`}
         >
           {eyebrow}
         </Link>
@@ -73,7 +73,7 @@ export function ContentCard({ item }: { item: Card }) {
         <h3 className="font-heading text-ink mt-1 text-[17px] font-bold leading-[1.3] tracking-tight">
           <Link
             href={href}
-            className="group-hover:text-brand-600 line-clamp-2 transition after:absolute after:inset-0 after:content-['']"
+            className="group-hover:text-brand-600 line-clamp-2 transition-colors duration-200 after:absolute after:inset-0 after:content-['']"
           >
             {item.title}
           </Link>
