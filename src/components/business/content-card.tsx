@@ -3,38 +3,99 @@ import Link from 'next/link';
 import type { ContentCard as Card } from '@/lib/api/types';
 import { CONTENT_PATHS } from '@/lib/api/content';
 import { formatDate } from '@/lib/utils/format';
+import { cardMeta } from '@/lib/utils/card-meta';
+import { CardMetaRow } from './card-meta';
+
+// Accent colour for the eyebrow label, per content type.
+const TYPE_COLORS: Record<string, string> = {
+  RESTAURANT: 'text-orange-600',
+  HOTEL: 'text-blue-600',
+  EVENT: 'text-purple-600',
+  SONG: 'text-pink-600',
+  VIDEO: 'text-red-600',
+  STARTUP: 'text-green-600',
+  BUSINESS: 'text-indigo-600',
+  CHURCH: 'text-violet-600',
+  OPPORTUNITY: 'text-amber-600',
+  READ: 'text-teal-600',
+};
+
+// Human label per content type (fallback when the item has no tag).
+const TYPE_LABELS: Record<string, string> = {
+  RESTAURANT: 'Restaurant',
+  HOTEL: 'Hotel',
+  EVENT: 'Event',
+  SONG: 'Music',
+  VIDEO: 'Video',
+  STARTUP: 'Startup',
+  BUSINESS: 'New business',
+  CHURCH: 'Faith',
+  OPPORTUNITY: 'Opportunity',
+  READ: 'Must read',
+};
 
 export function ContentCard({ item }: { item: Card }) {
   const href = `/${CONTENT_PATHS[item.type]}/${item.slug}`;
-  const categoryLabel = item.categories[0]?.name ?? item.type.replace('_', ' ').toLowerCase();
+  const tag = item.tags?.[0];
+  const eyebrow = tag?.name ?? TYPE_LABELS[item.type] ?? item.type;
+  // A tag eyebrow filters by that tag; a type eyebrow browses the section.
+  const eyebrowHref = tag?.slug ? `/tag/${tag.slug}` : `/${CONTENT_PATHS[item.type]}`;
+  const eyebrowColor = TYPE_COLORS[item.type] || 'text-muted';
+  const meta = cardMeta(item);
 
   return (
-    <Link href={href} className="group block">
-      <div className="bg-canvas relative aspect-[4/3] overflow-hidden rounded-xl">
+    <article className="group relative">
+      <Link
+        href={href}
+        aria-hidden
+        tabIndex={-1}
+        className="bg-canvas relative block aspect-[4/3] overflow-hidden rounded-xl"
+      >
         {item.coverImage?.url && (
           <Image
             src={item.coverImage.url}
             alt={item.coverImage.alt ?? item.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover transition duration-300 group-hover:scale-105"
+            className="object-cover transition duration-300 group-hover:scale-[1.03]"
           />
         )}
-      </div>
-      <div className="mt-3 space-y-1">
-        <div className="text-muted text-[13px] font-medium uppercase tracking-wide">
-          {categoryLabel}
-        </div>
-        <h3 className="font-heading text-ink group-hover:text-brand-600 line-clamp-2 text-base font-bold leading-snug transition">
-          {item.title}
+      </Link>
+
+      <div className="mt-3">
+        <Link
+          href={eyebrowHref}
+          className={`relative z-10 inline-block text-[11px] font-bold uppercase tracking-[0.08em] hover:underline ${eyebrowColor}`}
+        >
+          {eyebrow}
+        </Link>
+
+        <h3 className="font-heading text-ink mt-1 text-[17px] font-bold leading-[1.3] tracking-tight">
+          <Link
+            href={href}
+            className="group-hover:text-brand-600 line-clamp-2 transition after:absolute after:inset-0 after:content-['']"
+          >
+            {item.title}
+          </Link>
         </h3>
-        {item.excerpt && (
-          <p className="text-muted line-clamp-2 text-[14px] leading-relaxed">{item.excerpt}</p>
-        )}
-        {item.publishDate && (
-          <div className="text-muted pt-1 text-xs">{formatDate(item.publishDate)}</div>
+
+        {meta ? (
+          <CardMetaRow meta={meta} />
+        ) : (
+          <>
+            {item.excerpt && (
+              <p className="text-muted mt-1.5 line-clamp-2 text-[14px] leading-relaxed">
+                {item.excerpt}
+              </p>
+            )}
+            {item.publishDate && (
+              <div className="text-muted/80 mt-2 text-[11px] font-semibold uppercase tracking-[0.06em]">
+                {formatDate(item.publishDate, 'd MMM yyyy')}
+              </div>
+            )}
+          </>
         )}
       </div>
-    </Link>
+    </article>
   );
 }

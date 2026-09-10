@@ -32,10 +32,34 @@ export function listContent(
 export const getContentBySlug = <T = unknown>(path: ContentPath, slug: string) =>
   apiGet<T>(`/${path}/slug/${slug}`, { next: { revalidate: 60, tags: [`${path}:${slug}`] } });
 
-export const getHomepage = (city?: string) =>
-  apiGet<HomepageShelf[]>(`/homepage${city ? `?city=${city}` : ''}`, {
+export const getHomepage = (city?: string, state?: string) => {
+  const qs = new URLSearchParams();
+  if (city) qs.set('city', city);
+  if (state) qs.set('state', state);
+  const q = qs.toString();
+  return apiGet<HomepageShelf[]>(`/homepage${q ? `?${q}` : ''}`, {
     next: { revalidate: 60, tags: ['homepage'] },
   });
+};
 
 export const getCities = () =>
   apiGet<City[]>('/cities?activeOnly=true', { next: { revalidate: 300, tags: ['cities'] } });
+
+/** Distinct states that currently have published content — for the header filter. */
+export const getStates = () =>
+  apiGet<string[]>('/cities/states', { next: { revalidate: 300, tags: ['states'] } });
+
+export interface TagRef {
+  id: string;
+  name: string;
+  slug: string;
+  kind: string;
+  description?: string | null;
+}
+
+/** Published content (any type) carrying a tag. */
+export const getTagContent = (slug: string, page = 1) =>
+  apiGet<{ tag: TagRef } & Paginated<ContentCard>>(
+    `/tags/${slug}/content?page=${page}&limit=24`,
+    { next: { revalidate: 60, tags: [`tag:${slug}`] } },
+  );

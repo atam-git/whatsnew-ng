@@ -34,30 +34,30 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className="bg-brand-600 rounded-2xl px-6 py-14 text-center text-white sm:px-12">
-      <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+    <div className="mx-auto max-w-5xl rounded-2xl bg-gradient-to-br from-[#d74035] to-[#c2352a] px-8 py-12 text-center text-white shadow-lg sm:px-12 sm:py-16">
+      <h2 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl">
         The weekly
       </h2>
-      <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-relaxed opacity-95">
+      <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed">
         New restaurants and hotels, the songs and videos worth your time, startups that just
         launched, and openings near you. One email, every Wednesday.
       </p>
 
       <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-md">
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
+            placeholder="Email Address"
             required
             disabled={status === 'loading' || status === 'success'}
-            className="h-12 flex-1 rounded-lg border-2 border-white/20 bg-white/10 px-4 text-white placeholder-white/60 backdrop-blur transition focus:border-white focus:outline-none disabled:opacity-60"
+            className="h-12 flex-1 rounded-full border-0 bg-white px-6 text-gray-900 placeholder-gray-500 shadow-sm transition focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-60"
           />
           <button
             type="submit"
             disabled={status === 'loading' || status === 'success'}
-            className="bg-ink hover:bg-ink/90 h-12 rounded-lg px-8 font-semibold text-white transition disabled:opacity-60"
+            className="h-12 rounded-full bg-gray-900 px-8 font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
           >
             {status === 'loading' ? 'Subscribing...' : status === 'success' ? 'Subscribed!' : 'Subscribe'}
           </button>
@@ -65,16 +65,16 @@ export function NewsletterSignup() {
 
         {message && (
           <p
-            className={`mt-3 text-sm ${status === 'error' ? 'text-red-100' : 'text-white/90'}`}
+            className={`mt-3 text-sm ${status === 'error' ? 'text-red-100' : 'text-white/95'}`}
           >
             {message}
           </p>
         )}
 
-        <p className="mt-4 text-xs opacity-75">
+        <p className="mt-5 text-xs text-white/90">
           Free, and one click to unsubscribe. We never share your address.
         </p>
       </form>
-    </section>
+    </div>
   );
 }

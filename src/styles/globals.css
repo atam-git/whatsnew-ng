@@ -17,6 +17,17 @@
   --color-surface: #ffffff;
   --color-canvas: #f7f8fa;
 
+  /* semantic — used by the CMS (status badges, destructive actions, alerts) */
+  --color-success-50: #ecfdf3;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-danger-50: #fef2f2;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-warning-50: #fffaeb;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
   --font-heading: var(--font-dm-sans), var(--font-sans);
@@ -24,10 +35,63 @@
 
 html {
   color-scheme: light;
+  /* lets full-bleed section bands use 100vw without a horizontal scrollbar */
+  overflow-x: hidden;
 }
 
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Tiptap editor content (CMS) — Tailwind's reset strips these otherwise */
+.prose-cms h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4em;
+  font-weight: 700;
+  margin: 1.2em 0 0.4em;
+}
+.prose-cms h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15em;
+  font-weight: 700;
+  margin: 1em 0 0.3em;
+}
+.prose-cms p {
+  margin: 0.6em 0;
+}
+.prose-cms ul,
+.prose-cms ol {
+  margin: 0.6em 0;
+  padding-left: 1.4em;
+}
+.prose-cms ul {
+  list-style: disc;
+}
+.prose-cms ol {
+  list-style: decimal;
+}
+.prose-cms li {
+  margin: 0.2em 0;
+}
+.prose-cms blockquote {
+  border-left: 3px solid var(--color-line);
+  padding-left: 1em;
+  color: var(--color-muted-700);
+  font-style: italic;
+  margin: 0.8em 0;
+}
+.prose-cms a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+}
+.prose-cms p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }

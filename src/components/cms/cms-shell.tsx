@@ -1,74 +1,209 @@
-import Link from 'next/link';
-import type { SessionUser } from '@/lib/api/types';
-import { SignOutButton } from './sign-out-button';
+'use client';
 
-const CONTENT_TYPES = [
-  'restaurants',
-  'hotels',
-  'events',
-  'songs',
-  'videos',
-  'startups',
-  'businesses',
-  'churches',
-  'opportunities',
-  'reads',
-];
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import {
+  LayoutDashboard,
+  FileText,
+  Hotel,
+  UtensilsCrossed,
+  CalendarDays,
+  Music2,
+  Video,
+  Rocket,
+  Building2,
+  Church,
+  Briefcase,
+  Tags,
+  Image as ImageIcon,
+  Mail,
+  Users,
+  Inbox,
+  LayoutTemplate,
+  MapPin,
+  Menu,
+  X,
+} from 'lucide-react';
+import type { SessionUser } from '@/lib/api/types';
+import { cn } from '@/lib/utils/cn';
+import { SignOutButton } from './sign-out-button';
+import { PageTitleProvider, usePageTitle } from './page-title-provider';
+
+const CONTENT = [
+  ['reads', 'Reads', FileText],
+  ['hotels', 'Hotels', Hotel],
+  ['restaurants', 'Restaurants', UtensilsCrossed],
+  ['events', 'Events', CalendarDays],
+  ['songs', 'Music', Music2],
+  ['videos', 'Video', Video],
+  ['startups', 'Startups', Rocket],
+  ['businesses', 'New business', Building2],
+  ['churches', 'Faith', Church],
+  ['opportunities', 'Opportunities', Briefcase],
+] as const;
+
+const MANAGE = [
+  ['/cms/homepage', 'Homepage', LayoutTemplate],
+  ['/cms/pages', 'Pages', FileText],
+  ['/cms/media', 'Media', ImageIcon],
+  ['/cms/tags', 'Tags', Tags],
+  ['/cms/cities', 'Cities', MapPin],
+  ['/cms/newsletter', 'Newsletter', Mail],
+  ['/cms/subscribers', 'Subscribers', Users],
+  ['/cms/submissions', 'Submissions', Inbox],
+] as const;
+
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  active: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={cn(
+        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition',
+        active ? 'bg-brand-50 text-brand-700' : 'text-muted-700 hover:bg-canvas hover:text-ink',
+      )}
+    >
+      <Icon className="h-[18px] w-[18px] shrink-0" />
+      {label}
+    </Link>
+  );
+}
+
+function CmsShellInner({ user, children }: { user: SessionUser; children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const { title, subtitle, actions, breadcrumbs } = usePageTitle();
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+
+  const nav = (
+    <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+      <NavLink href="/cms" label="Dashboard" icon={LayoutDashboard} active={pathname === '/cms'} onNavigate={() => setOpen(false)} />
+      <div>
+        <p className="text-muted px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide">
+          Content
+        </p>
+        <div className="flex flex-col gap-0.5">
+          {CONTENT.map(([slug, label, Icon]) => (
+            <NavLink
+              key={slug}
+              href={`/cms/content/${slug}`}
+              label={label}
+              icon={Icon}
+              active={isActive(`/cms/content/${slug}`)}
+              onNavigate={() => setOpen(false)}
+            />
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-muted px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide">
+          Manage
+        </p>
+        <div className="flex flex-col gap-0.5">
+          {MANAGE.map(([href, label, Icon]) => (
+            <NavLink key={href} href={href} label={label} icon={Icon} active={isActive(href)} onNavigate={() => setOpen(false)} />
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+
+  return (
+    <div className="bg-canvas flex min-h-screen">
+      {/* sidebar — desktop */}
+      <aside className="border-line bg-surface fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r lg:flex">
+        <Link href="/cms" className="border-line flex h-14 shrink-0 items-center gap-2 border-b px-4">
+          <img
+            src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+            alt="Whatsnew.ng"
+            className="h-10 w-auto"
+          />
+          <span className="text-brand-600 text-xs font-semibold uppercase tracking-wide">CMS</span>
+        </Link>
+        {nav}
+      </aside>
+
+      {/* sidebar — mobile drawer */}
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="bg-ink/40 absolute inset-0" onClick={() => setOpen(false)} />
+          <aside className="border-line bg-surface absolute inset-y-0 left-0 flex w-64 flex-col border-r">
+            <div className="border-line flex h-14 items-center justify-between border-b px-4">
+              <img
+                src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+                alt="Whatsnew.ng"
+                className="h-10 w-auto"
+              />
+              <button onClick={() => setOpen(false)} aria-label="Close menu">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {nav}
+          </aside>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col lg:ml-60">
+        <header className="border-line bg-surface sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b px-4 sm:px-6">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">
+              <Menu className="h-5 w-5" />
+            </button>
+            {breadcrumbs.length > 0 ? (
+              <nav className="flex min-w-0 items-center gap-2 text-sm">
+                {breadcrumbs.map((crumb, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    {i > 0 && <span className="text-muted">/</span>}
+                    {crumb.href ? (
+                      <Link href={crumb.href} className="text-muted hover:text-ink truncate transition">
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span className="text-ink truncate font-medium">{crumb.label}</span>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            ) : title ? (
+              <div className="min-w-0 flex-1">
+                <h1 className="text-ink truncate text-base font-semibold sm:text-lg">
+                  {title}
+                  {subtitle && <span className="text-muted ml-2 text-sm font-normal">· {subtitle}</span>}
+                </h1>
+              </div>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            {actions}
+            <span className="text-muted hidden text-[13px] sm:inline">
+              {user.email} · {user.role.replace('_', ' ').toLowerCase()}
+            </span>
+            <SignOutButton />
+          </div>
+        </header>
+        <main className="mx-auto w-full flex-1 px-4 py-3 sm:px-6 sm:py-4">{children}</main>
+      </div>
+    </div>
+  );
+}
 
 export function CmsShell({ user, children }: { user: SessionUser; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <aside className="border-line bg-surface w-56 shrink-0 border-r p-4 text-sm">
-        <Link href="/cms" className="block text-base font-bold">
-          Whatsnew<span className="text-brand-600">.ng</span>
-        </Link>
-
-        <nav className="mt-4 space-y-4">
-          <div>
-            <div className="text-muted mb-1 text-xs font-semibold uppercase">Content</div>
-            <ul className="space-y-0.5">
-              {CONTENT_TYPES.map((t) => (
-                <li key={t}>
-                  <Link
-                    href={`/cms/content/${t}`}
-                    className="hover:bg-canvas block rounded px-2 py-1 capitalize"
-                  >
-                    {t}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <div className="text-muted mb-1 text-xs font-semibold uppercase">Manage</div>
-            <ul className="space-y-0.5">
-              {[
-                ['Homepage', '/cms/homepage'],
-                ['Media', '/cms/media'],
-                ['Newsletter', '/cms/newsletter'],
-                ['Submissions', '/cms/submissions'],
-              ].map(([label, href]) => (
-                <li key={href}>
-                  <Link href={href} className="hover:bg-canvas block rounded px-2 py-1">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </nav>
-      </aside>
-
-      <div className="flex-1">
-        <header className="border-line bg-surface flex items-center justify-between border-b px-6 py-3 text-sm">
-          <span className="text-muted">
-            {user.email} · {user.role.replace('_', ' ').toLowerCase()}
-          </span>
-          <SignOutButton />
-        </header>
-        <main className="p-6">{children}</main>
-      </div>
-    </div>
+    <PageTitleProvider>
+      <CmsShellInner user={user}>{children}</CmsShellInner>
+    </PageTitleProvider>
   );
 }

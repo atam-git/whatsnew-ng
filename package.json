@@ -12,35 +12,37 @@
     "api:types": "openapi-typescript ../backend/openapi.json -o src/lib/api/schema.d.ts"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
+    "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-table": "^8.21.0",
+    "@tiptap/extension-link": "^2.27.3",
+    "@tiptap/extension-placeholder": "^2.27.3",
+    "@tiptap/pm": "^2.11.0",
+    "@tiptap/react": "^2.11.0",
+    "@tiptap/starter-kit": "^2.11.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.468.0",
     "next": "^15.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@tanstack/react-query": "^5.62.0",
-    "@tanstack/react-table": "^8.21.0",
     "react-hook-form": "^7.54.0",
-    "@hookform/resolvers": "^3.10.0",
-    "zod": "^3.24.0",
-    "@tiptap/react": "^2.11.0",
-    "@tiptap/pm": "^2.11.0",
-    "@tiptap/starter-kit": "^2.11.0",
-    "lucide-react": "^0.468.0",
-    "clsx": "^2.1.1",
     "tailwind-merge": "^2.6.0",
-    "date-fns": "^4.1.0"
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@eslint/eslintrc": "^3.2.0",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "postcss": "^8.4.49",
     "eslint": "^9.17.0",
-    "@eslint/eslintrc": "^3.2.0",
     "eslint-config-next": "^15.5.0",
+    "openapi-typescript": "^7.5.0",
+    "postcss": "^8.4.49",
     "prettier": "^3.4.0",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "openapi-typescript": "^7.5.0"
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
   }
 }
