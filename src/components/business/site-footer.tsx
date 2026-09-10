@@ -92,7 +92,7 @@ export function SiteFooter({ nav }: { nav?: NavTree }) {
           <div className="lg:col-span-4">
             <Link href="/" className="flex items-center">
               <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+                src="/Whatsnew.ng.png"
                 alt="Whatsnew.ng"
                 className="h-8 w-auto brightness-0 invert"
               />

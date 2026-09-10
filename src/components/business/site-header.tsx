@@ -130,7 +130,7 @@ export function SiteHeader({
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center">
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+            src="/Whatsnew.ng.png"
             alt="Whatsnew.ng"
             className="h-12 w-auto"
           />

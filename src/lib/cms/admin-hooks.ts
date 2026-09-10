@@ -420,6 +420,33 @@ export function useSendTestIssue() {
 /** Same-origin URL for the rendered-email preview (open in a new tab). */
 export const issuePreviewUrl = (id: string) => `/api/v1/newsletter/issues/${id}/preview`;
 
+// ── Newsletter schedule (weekly auto-draft) ──────────────────────────────────
+
+export interface NewsletterSettings {
+  cron: string;
+  timezone: string;
+  enabled: boolean;
+  nextRun: string | null;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export function useNewsletterSettings() {
+  return useQuery({
+    queryKey: ['newsletter-settings'],
+    queryFn: () => cmsFetch<NewsletterSettings>('/newsletter/settings'),
+  });
+}
+
+export function useSaveNewsletterSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { cron: string; timezone: string; enabled: boolean }) =>
+      cmsFetch<NewsletterSettings>('/newsletter/settings', { method: 'PATCH', json: data }),
+    onSuccess: (r) => qc.setQueryData(['newsletter-settings'], r),
+  });
+}
+
 // ── Navigation ───────────────────────────────────────────────────────────────
 
 export type NavGroup =

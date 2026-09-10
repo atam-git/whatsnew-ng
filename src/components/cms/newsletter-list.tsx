@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import { useIssues, useCreateIssue, type IssueRow } from '@/lib/cms/admin-hooks';
 import { PageHeader, Button, DataTable, StatusBadge, EmptyState, Dialog, Field, Input, useToast, type Column } from './ui';
 import { formatDate } from '@/lib/utils/format';
+import { NewsletterSchedule } from './newsletter-schedule';
 
 export function NewsletterList() {
   const router = useRouter();
@@ -36,7 +37,9 @@ export function NewsletterList() {
         title="Newsletter"
         subtitle="One issue every Wednesday. Autofill pulls the week's published items."
       />
-      
+
+      <NewsletterSchedule />
+
       <div className="mb-4 flex items-center gap-2">
         <div className="flex-1" />
         <Button onClick={() => setSubject('')}>

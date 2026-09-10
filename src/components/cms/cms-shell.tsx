@@ -129,7 +129,7 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
       <aside className="border-line bg-surface fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r lg:flex">
         <Link href="/cms" className="border-line flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+            src="/Whatsnew.ng.png"
             alt="Whatsnew.ng"
             className="h-10 w-auto"
           />
@@ -145,7 +145,7 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
           <aside className="border-line bg-surface absolute inset-y-0 left-0 flex w-64 flex-col border-r">
             <div className="border-line flex h-14 items-center justify-between border-b px-4">
               <img
-                src="https://api.builder.io/api/v1/image/assets/TEMP/d4abafef8ae07e0de7115621c4019545734d90dd?width=143"
+                src="/Whatsnew.ng.png"
                 alt="Whatsnew.ng"
                 className="h-10 w-auto"
               />

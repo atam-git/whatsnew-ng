@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import type { ContentCard } from '@/lib/api/types';
+import { env } from '@/lib/env';
 import { getHomepage } from '@/lib/api/content';
 import { SectionBand } from '@/components/business/section-band';
 import { FeaturedArticle } from '@/components/business/featured-article';
@@ -28,6 +30,30 @@ const VIEW_ALL: Record<string, string> = {
 
 // Shelves that render on a full-bleed white band (the rest sit on the page bg).
 const SURFACE_BANDS = new Set(['opportunities', 'startups', 'new_business']);
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ city?: string; state?: string }>;
+}): Promise<Metadata> {
+  const { state } = await searchParams;
+  if (state) {
+    const title = `What’s new in ${state}`;
+    const description = `The places, launches, releases and events worth knowing about in ${state}, updated every week.`;
+    return {
+      title,
+      description,
+      alternates: { canonical: `/?state=${encodeURIComponent(state)}` },
+      openGraph: { type: 'website', title: `${title} · Whatsnew.ng`, description },
+      twitter: { card: 'summary_large_image', title: `${title} · Whatsnew.ng`, description },
+    };
+  }
+  return {
+    // Inherits title/description from the root layout.
+    alternates: { canonical: '/' },
+    openGraph: { url: env.siteUrl },
+  };
+}
 
 export default async function HomePage({
   searchParams,
