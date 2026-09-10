@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 function LoginForm() {
   const router = useRouter();
@@ -40,7 +41,17 @@ function LoginForm() {
       onSubmit={onSubmit}
       className="border-line bg-surface w-full max-w-sm space-y-3 rounded-xl border p-6"
     >
-      <h1 className="text-lg font-bold">Whatsnew.ng CMS</h1>
+      <div className="mb-6 flex justify-center">
+        <Image
+          src="/Whatsnew.ng.png"
+          alt="Whatsnew.ng"
+          width={200}
+          height={60}
+          priority
+          className="h-auto w-48"
+        />
+      </div>
+      <h1 className="text-center text-lg font-bold">Sign in to CMS</h1>
       <input
         name="email"
         type="email"
