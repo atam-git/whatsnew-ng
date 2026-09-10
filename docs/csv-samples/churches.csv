@@ -1,0 +1,4 @@
+title (required),city (required),excerpt,tags,publishDate,externalUrl,eventDate,venueName,neighbourhood,address,hostOrSpeaker,registrationUrl,denomination,guestSpeakers,isOnline,streamUrl
+The Experience Lagos 2026,Lagos,The annual free gospel concert returns to TBS.,Live music,2026-09-01,https://example.com/experience,2026-12-04T18:00,Tafawa Balewa Square,Lagos Island,TBS Lagos Island,Pastor Paul Adefarasin,https://example.com/experience/register,Non-denominational,Nathaniel Bassey; Sinach,true,https://youtube.com/@houseonrock
+Holy Ghost Congress,Everywhere,RCCG's week-long convention at the Redemption Camp.,Weekend,2026-09-03,,2026-12-08T17:00,Redemption Camp,,Lagos-Ibadan Expressway,Pastor E.A. Adeboye,,Pentecostal,,true,https://example.com/rccg-live
+Diocesan Carol Service,Enugu,A candlelit nine-lessons-and-carols evening.,Weekend,2026-09-07,,2026-12-20T18:00,Cathedral Church of the Good Shepherd,,Ogui Rd Enugu,The Bishop of Enugu,,Anglican,,false,

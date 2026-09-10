@@ -52,7 +52,7 @@ const MANAGE = [
   ['/cms/pages', 'Pages', FileText],
   ['/cms/media', 'Media', ImageIcon],
   ['/cms/tags', 'Tags', Tags],
-  ['/cms/cities', 'Cities', MapPin],
+  ['/cms/cities', 'States', MapPin],
   ['/cms/newsletter', 'Newsletter', Mail],
   ['/cms/subscribers', 'Subscribers', Users],
   ['/cms/submissions', 'Submissions', Inbox],

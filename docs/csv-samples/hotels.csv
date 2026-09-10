@@ -1,0 +1,4 @@
+title (required),city (required),excerpt,tags,publishDate,externalUrl,neighbourhood,priceRange,pricePerNightFrom,currency,starRating,bookingUrl,address,phone,amenities,checkInTime,checkOutTime
+The Nest Boutique Hotel Lekki,Lagos,A 24-room design hotel on the Lekki-Epe corridor.,Rooftop; Pool,2026-08-20,https://example.com/nest,Lekki Phase 1,UPSCALE,85000,NGN,4,https://example.com/nest/book,12 Admiralty Way Lekki,+234 801 234 5678,Pool; Rooftop; Free Wi-Fi; Gym,3:00 PM,11:00 AM
+Rivers Rock Lodge,Port Harcourt,A riverside lodge aimed at business travellers.,Bar,2026-08-28,,Old GRA,MODERATE,42000,NGN,3,,7 Forces Ave PH,+234 803 111 2222,Bar; Parking; Free Wi-Fi,2:00 PM,12:00 PM
+Aso Grand Suites,Abuja,Extended-stay apartments near the CBD.,Gym,2026-09-01,,Central Business District,LUXURY,150000,NGN,5,,1 Independence Ave Abuja,,Pool; Spa; Gym; Airport shuttle,3:00 PM,11:00 AM

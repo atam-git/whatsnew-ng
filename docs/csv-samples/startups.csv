@@ -1,0 +1,4 @@
+title (required),city (required),excerpt,tags,publishDate,externalUrl,tagline,sector,website,stage,fundingRaised,startupStatus,foundedYear,hqCity,teamSize,foundersNames,linkedinUrl
+Kola,Lagos,Payroll and benefits startup emerges from stealth.,Fintech,2026-09-03,https://kola.co,Payroll and benefits for African teams,Fintech; HR,https://kola.co,Seed,$2.5M seed,ACTIVE,2025,Lagos,11-50,Ada Nwosu; Tunde Bello,https://linkedin.com/company/kola
+FarmLink,Ibadan,A logistics layer for smallholder produce.,Agritech,2026-09-05,,Move produce from farm to market in a day,Agritech; Logistics,https://farmlink.ng,Pre-seed,$400k pre-seed,ACTIVE,2026,Ibadan,1-10,Bola Alabi,
+Paye,Abuja,A tax-filing app for freelancers.,Fintech,2026-09-07,,File your taxes in ten minutes,Fintech,https://paye.ng,Seed,$1M seed,ACTIVE,2025,Abuja,11-50,Ngozi Eze; Sadiq Bello,

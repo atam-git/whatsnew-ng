@@ -16,7 +16,7 @@ export interface StaticPage {
 
 /** One of the fixed CMS-editable static pages, by slug. */
 export const getPage = (slug: string) =>
-  apiGet<StaticPage>(`/pages/${slug}`, { next: { revalidate: 60, tags: [`page:${slug}`] } });
+  apiGet<StaticPage>(`/pages/${slug}`, { cache: 'no-store' });
 
 /** `generateMetadata` helper for a static-page route. */
 export async function pageMetadata(slug: string): Promise<Metadata> {

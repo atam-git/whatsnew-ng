@@ -13,6 +13,4 @@ export interface SiteSettings {
 
 /** Site-wide contact + social details (footer + Contact page). */
 export const getSiteSettings = () =>
-  apiGet<SiteSettings>('/settings/site', {
-    next: { revalidate: 60, tags: ['site-settings'] },
-  });
+  apiGet<SiteSettings>('/settings/site', { cache: 'no-store' });

@@ -19,6 +19,7 @@ import { StatusBadge } from './ui/status-badge';
 import { RichTextEditor } from './rich-text-editor-lazy';
 import { FieldRenderer } from './field-renderer';
 import { MediaField, GalleryField } from './media-picker';
+import { CsvImport } from './csv-import';
 import { EntitySelect } from './entity-select';
 import type { ContentStatus } from '@/lib/api/types';
 
@@ -161,6 +162,51 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
   const slugValue = (watch('slug') as string) ?? '';
   const slug = useSlugCheck(type, slugValue, effectiveId ?? undefined);
 
+  // ── CSV import (create only) ────────────────────────────────────────────
+  // A queue of rows from a multi-row CSV. Each is filled into the form, the
+  // user adds images and saves, then we advance to the next unsaved row.
+  const [queue, setQueue] = useState<Record<string, unknown>[]>([]);
+  const [qi, setQi] = useState(0);
+  const [doneIdx, setDoneIdx] = useState<Set<number>>(new Set());
+
+  const applyRow = (values: Record<string, unknown>) => {
+    for (const [k, v] of Object.entries(values)) {
+      setValue(k as never, v as never, { shouldDirty: true });
+    }
+  };
+  /** Fresh blank form + this row's values + cleared media. */
+  const loadRow = (i: number) => {
+    reset(toForm(type, null));
+    applyRow(queue[i]);
+    setQi(i);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const nextPending = (from: number) => {
+    for (let i = from + 1; i < queue.length; i++) if (!doneIdx.has(i)) return i;
+    for (let i = 0; i < queue.length; i++) if (!doneIdx.has(i) && i !== qi) return i;
+    return -1;
+  };
+  const prevPending = (from: number) => {
+    for (let i = from - 1; i >= 0; i--) if (!doneIdx.has(i)) return i;
+    return -1;
+  };
+
+  const handleImport = (rows: Record<string, unknown>[]) => {
+    if (!rows.length) return;
+    setDoneIdx(new Set());
+    setQueue(rows);
+    reset(toForm(type, null));
+    applyRow(rows[0]);
+    setQi(0);
+  };
+  const discardQueue = () => {
+    setQueue([]);
+    setQi(0);
+    setDoneIdx(new Set());
+  };
+  const inQueue = queue.length > 1;
+  const isLastPending = inQueue && nextPending(qi) === -1;
+
   useEffect(() => {
     if (item) reset(toForm(type, item));
   }, [item, type, reset]);
@@ -175,7 +221,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
 
   const onSubmit = handleSubmit(async (values) => {
     if (!values.cityIds?.length) {
-      toast('Pick at least one city under Organise.', 'error');
+      toast('Pick at least one state under Organise.', 'error');
       return;
     }
     // auto-slug from title if blank
@@ -190,6 +236,27 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
         id: effectiveId ?? undefined,
         data: toPayload(type, values, !!effectiveId),
       })) as { id: string };
+
+      // Multi-row CSV: mark this row saved, move to the next unsaved one.
+      if (inQueue && res?.id && !effectiveId) {
+        const done = new Set(doneIdx).add(qi);
+        setDoneIdx(done);
+        const next = (() => {
+          for (let i = qi + 1; i < queue.length; i++) if (!done.has(i)) return i;
+          for (let i = 0; i < queue.length; i++) if (!done.has(i)) return i;
+          return -1;
+        })();
+        if (next === -1) {
+          toast(`All ${queue.length} ${cfg.label.toLowerCase()}s created.`, 'success');
+          discardQueue();
+          router.push(`/cms/content/${type}`);
+        } else {
+          toast(`Saved ${done.size} of ${queue.length}. Next up: item ${next + 1}.`, 'success');
+          loadRow(next);
+        }
+        return;
+      }
+
       toast(isNew && !savedId ? `${cfg.label} created` : 'Saved', 'success');
       if (res?.id && !effectiveId) {
         setSavedId(res.id);
@@ -256,11 +323,58 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
               </Button>
             )}
             <Button type="submit" loading={save.isPending}>
-              {effectiveId ? 'Save' : `Create ${cfg.label.toLowerCase()}`}
+              {effectiveId
+                ? 'Save'
+                : inQueue
+                  ? isLastPending
+                    ? 'Save & finish'
+                    : 'Save & next'
+                  : `Create ${cfg.label.toLowerCase()}`}
             </Button>
           </>
         }
       />
+
+      {!effectiveId && (
+        <div className="mb-6">
+          {inQueue ? (
+            <div className="border-brand-200 bg-brand-50 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3">
+              <p className="text-[13px]">
+                <span className="text-brand-800 font-semibold">CSV import</span>
+                <span className="text-brand-700">
+                  {' '}
+                  — item {qi + 1} of {queue.length} · {doneIdx.size} saved
+                </span>
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={prevPending(qi) === -1}
+                  onClick={() => loadRow(prevPending(qi))}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={nextPending(qi) === -1}
+                  onClick={() => loadRow(nextPending(qi))}
+                >
+                  Skip
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={discardQueue}>
+                  Discard import
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <CsvImport type={type} label={cfg.label} onImport={handleImport} />
+          )}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         {/* main column */}
@@ -439,7 +553,11 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
 
           <Card title="Organise">
             <div className="space-y-4">
-              <Field label="Cities" required hint="At least one - this sets the state shown in the site filter.">
+              <Field
+                label="State"
+                required
+                hint="Pick one or more states. Use “Nationwide” for online / countrywide items."
+              >
                 <Controller
                   control={control}
                   name="cityIds"
@@ -448,7 +566,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                       options={cityOpts}
                       value={field.value ?? []}
                       onChange={field.onChange}
-                      placeholder="Add a city…"
+                      placeholder="Add a state…"
                     />
                   )}
                 />
