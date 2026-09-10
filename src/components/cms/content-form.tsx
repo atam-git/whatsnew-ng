@@ -12,6 +12,7 @@ import {
   useCities,
   useTags,
   useCreateTag,
+  useSlugCheck,
 } from '@/lib/cms/hooks';
 import { PageHeader, Card, Button, Field, Input, Textarea, useToast, useConfirm } from './ui';
 import { StatusBadge } from './ui/status-badge';
@@ -33,6 +34,20 @@ const DETAIL_KEY: Record<string, string> = {
   churches: 'church',
   opportunities: 'opportunity',
 };
+
+const TYPE_ARTICLE: Record<string, string> = {
+  READ: 'a read',
+  HOTEL: 'a hotel',
+  RESTAURANT: 'a restaurant',
+  EVENT: 'an event',
+  SONG: 'a song',
+  VIDEO: 'a video',
+  STARTUP: 'a startup',
+  BUSINESS: 'a business',
+  CHURCH: 'a faith event',
+  OPPORTUNITY: 'an opportunity',
+};
+const a = (t?: string) => (t && TYPE_ARTICLE[t]) || 'another item';
 
 const toLocalInput = (iso?: string | null) => (iso ? new Date(iso).toISOString().slice(0, 16) : '');
 const toDateInput = (iso?: string | null) => (iso ? new Date(iso).toISOString().slice(0, 10) : '');
@@ -143,6 +158,9 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
   const effectiveId = savedId ?? (isNew ? null : id);
   const status: ContentStatus = item?.status ?? 'DRAFT';
 
+  const slugValue = (watch('slug') as string) ?? '';
+  const slug = useSlugCheck(type, slugValue, effectiveId ?? undefined);
+
   useEffect(() => {
     if (item) reset(toForm(type, item));
   }, [item, type, reset]);
@@ -252,8 +270,41 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
               <Field label="Title" required htmlFor="title">
                 <Input id="title" {...register('title', { required: true })} placeholder="Headline" />
               </Field>
-              <Field label="Slug" hint="Auto-generated from the title if left blank.">
-                <Input {...register('slug')} placeholder="my-article" />
+              <Field
+                label="Slug"
+                hint={
+                  slugValue.trim()
+                    ? undefined
+                    : 'Auto-generated from the title if left blank.'
+                }
+              >
+                <Input {...register('slug')} placeholder="my-article" spellCheck={false} />
+                {slugValue.trim() && (
+                  <p className="mt-1 text-[12px]">
+                    {slug.pending || slug.checking ? (
+                      <span className="text-muted">Checking availability…</span>
+                    ) : slug.data?.available ? (
+                      <span className="text-[--color-success-600]">
+                        “{slug.data.slug}” is available
+                      </span>
+                    ) : slug.data ? (
+                      <span className="text-[--color-warning-600]">
+                        Taken by {a(slug.data.takenBy?.type)}
+                        {slug.data.takenBy?.title ? ` (“${slug.data.takenBy.title}”)` : ''}. Saving now
+                        would use “{slug.data.suggestion}”.{' '}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setValue('slug', slug.data!.suggestion, { shouldDirty: true })
+                          }
+                          className="text-brand-700 font-semibold underline"
+                        >
+                          Use it
+                        </button>
+                      </span>
+                    ) : null}
+                  </p>
+                )}
               </Field>
               <Field label="Excerpt" hint="One line shown as the dek and on cards.">
                 <Textarea {...register('excerpt')} rows={2} />

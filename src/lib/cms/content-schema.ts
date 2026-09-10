@@ -10,6 +10,7 @@ export type FieldKind =
   | 'int'
   | 'number'
   | 'url'
+  | 'mediaUrl'
   | 'datetime'
   | 'date'
   | 'boolean'
@@ -25,6 +26,8 @@ export interface FieldDef {
   placeholder?: string;
   required?: boolean;
   options?: { value: string; label: string }[];
+  /** for kind 'mediaUrl': which media type the upload/library picker accepts */
+  accept?: 'audio' | 'video';
   /** grid span on desktop */
   span?: 1 | 2;
 }
@@ -185,7 +188,14 @@ export const CONTENT_TYPES: Record<string, TypeConfig> = {
           { key: 'appleMusicUrl', label: 'Apple Music', kind: 'url' },
           { key: 'youtubeUrl', label: 'YouTube', kind: 'url' },
           { key: 'audiomackUrl', label: 'Audiomack', kind: 'url' },
-          { key: 'previewAudioUrl', label: 'Preview audio', kind: 'url' },
+          {
+            key: 'previewAudioUrl',
+            label: 'Preview audio',
+            kind: 'mediaUrl',
+            accept: 'audio',
+            span: 2,
+            help: 'Upload an audio clip or paste a direct link — it plays inline on the song page.',
+          },
           { key: 'spotifyId', label: 'Spotify ID', kind: 'text' },
         ],
       },
@@ -198,9 +208,17 @@ export const CONTENT_TYPES: Record<string, TypeConfig> = {
       {
         title: 'Video',
         fields: [
-          { key: 'videoUrl', label: 'Video URL', kind: 'url', required: true, span: 2 },
+          {
+            key: 'videoUrl',
+            label: 'Video',
+            kind: 'mediaUrl',
+            accept: 'video',
+            required: true,
+            span: 2,
+            help: 'Paste a YouTube / Vimeo link, or upload a video file — it plays inline on the page.',
+          },
           { key: 'platform', label: 'Platform', kind: 'enum', options: [{ value: 'YOUTUBE', label: 'YouTube' }, { value: 'OTHER', label: 'Other' }] },
-          { key: 'videoId', label: 'Video ID', kind: 'text' },
+          { key: 'videoId', label: 'Video ID', kind: 'text', help: 'Auto-detected from a YouTube URL if left blank.' },
           { key: 'creatorName', label: 'Creator', kind: 'text' },
           { key: 'channelUrl', label: 'Channel URL', kind: 'url' },
           { key: 'durationSeconds', label: 'Duration (sec)', kind: 'int' },

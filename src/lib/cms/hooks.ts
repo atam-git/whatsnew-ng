@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ContentStatus, Paginated } from '@/lib/api/types';
 import { cmsFetch } from './api';
@@ -107,11 +108,13 @@ export interface MediaItem {
   height?: number | null;
 }
 
-export function useMedia(q = '') {
+export function useMedia(q = '', kind?: 'image' | 'audio' | 'video') {
   return useQuery({
-    queryKey: ['media', q],
+    queryKey: ['media', q, kind ?? 'all'],
     queryFn: () =>
-      cmsFetch<Paginated<MediaItem>>(`/media?limit=60${q ? `&q=${encodeURIComponent(q)}` : ''}`),
+      cmsFetch<Paginated<MediaItem>>(
+        `/media?limit=60${q ? `&q=${encodeURIComponent(q)}` : ''}${kind ? `&kind=${kind}` : ''}`,
+      ),
   });
 }
 
@@ -131,4 +134,44 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
     method: 'POST',
     json: { key: presign.key, mimeType: file.type, sizeBytes: file.size },
   });
+}
+
+// ── Live slug availability (CMS content editor) ──────────────────────────────
+
+export interface SlugCheck {
+  slug: string;
+  available: boolean;
+  suggestion: string;
+  takenBy?: { type: string; title: string; status: string };
+}
+
+/**
+ * Debounced check of whether `slug` is free. `type` is the content-type path.
+ * `excludeId` is the current item (so editing without changing the slug is fine).
+ * Returns `null` while idle / debouncing / for an empty slug.
+ */
+export function useSlugCheck(type: string, slug: string, excludeId?: string) {
+  const [debounced, setDebounced] = useState(slug);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(slug.trim()), 350);
+    return () => clearTimeout(t);
+  }, [slug]);
+
+  const query = useQuery({
+    queryKey: ['slug-check', type, debounced, excludeId ?? ''],
+    enabled: debounced.length > 0,
+    staleTime: 10_000,
+    queryFn: () =>
+      cmsFetch<SlugCheck>(
+        `/${type}/slug-check?slug=${encodeURIComponent(debounced)}` +
+          (excludeId ? `&excludeId=${excludeId}` : ''),
+      ),
+  });
+
+  return {
+    data: debounced.length > 0 ? (query.data ?? null) : null,
+    checking: query.isFetching && debounced.length > 0,
+    pending: slug.trim() !== debounced,
+  };
 }

@@ -19,6 +19,38 @@ const TYPES: { label: string; value: string }[] = [
   { label: 'Opportunities', value: 'OPPORTUNITY' },
 ];
 
+function CardSkeleton() {
+  return (
+    <div className="border-line overflow-hidden rounded-xl border">
+      <div className="bg-line aspect-[16/10] w-full animate-pulse" />
+      <div className="space-y-2 p-4">
+        <div className="bg-line h-3 w-16 animate-pulse rounded" />
+        <div className="bg-line h-4 w-4/5 animate-pulse rounded" />
+        <div className="bg-line h-3 w-2/3 animate-pulse rounded" />
+      </div>
+    </div>
+  );
+}
+
+function ResultsGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <CardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="text-muted h-4 w-4 shrink-0 animate-spin" viewBox="0 0 24 24" aria-hidden>
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
+
 function SearchInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -73,7 +105,8 @@ function SearchInner() {
           placeholder="Restaurants, artists, events, startups…"
           className="text-ink placeholder:text-muted/70 w-full bg-transparent text-[16px] outline-none"
         />
-        {q && (
+        {loading && <Spinner />}
+        {!loading && q && (
           <button onClick={() => setQ('')} className="text-muted hover:text-ink text-sm" aria-label="Clear">
             Clear
           </button>
@@ -96,10 +129,13 @@ function SearchInner() {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8" aria-live="polite" aria-busy={loading}>
         {loading && !res ? (
-          <p className="text-muted text-[15px]">Loading…</p>
-        ) : res && res.data.length === 0 ? (
+          <>
+            <div className="bg-line mb-4 h-3 w-40 animate-pulse rounded" />
+            <ResultsGridSkeleton />
+          </>
+        ) : res && res.data.length === 0 && !loading ? (
           <p className="text-muted text-[15px]">
             {res.meta.browse
               ? 'Nothing published yet.'
@@ -107,8 +143,14 @@ function SearchInner() {
           </p>
         ) : res ? (
           <>
-            <p className="text-muted mb-4 text-[13px]">{heading}</p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <p className="text-muted mb-4 text-[13px]">
+              {loading ? 'Searching…' : heading}
+            </p>
+            <div
+              className={`grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 ${
+                loading ? 'pointer-events-none opacity-40' : 'opacity-100'
+              }`}
+            >
               {res.data.map((item) => (
                 <ContentCard key={item.id} item={item} />
               ))}
@@ -122,7 +164,7 @@ function SearchInner() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="text-muted mx-auto max-w-5xl">Loading…</div>}>
+    <Suspense fallback={<ResultsGridSkeleton />}>
       <SearchInner />
     </Suspense>
   );

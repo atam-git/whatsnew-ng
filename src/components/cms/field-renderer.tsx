@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Controller, type Control, type UseFormRegister } from 'react-hook-form';
 import { X } from 'lucide-react';
 import { Field, Input, Textarea, Select, Toggle } from './ui/field';
+import { MediaUrlField } from './media-picker';
 import type { FieldDef } from '@/lib/cms/content-schema';
 import { cn } from '@/lib/utils/cn';
 
@@ -137,6 +138,26 @@ export function FieldRenderer({
             <StringListInput
               value={field.value ?? []}
               onChange={field.onChange}
+              placeholder={def.placeholder}
+            />
+          )}
+        />
+      </Field>
+    );
+  }
+
+  if (def.kind === 'mediaUrl') {
+    return (
+      <Field label={def.label} hint={def.help} required={def.required} className={wrapClass}>
+        <Controller
+          control={control}
+          name={def.key}
+          rules={{ required: def.required }}
+          render={({ field }) => (
+            <MediaUrlField
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              accept={def.accept ?? 'video'}
               placeholder={def.placeholder}
             />
           )}

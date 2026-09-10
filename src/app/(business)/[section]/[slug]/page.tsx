@@ -10,6 +10,7 @@ import { ContentCard } from '@/components/business/content-card';
 import { NewsletterSignup } from '@/components/business/newsletter-signup';
 import { RichText } from '@/components/business/rich-text';
 import { ContentFacts } from '@/components/business/content-facts';
+import { SongEmbed, VideoEmbed } from '@/components/business/media-embed';
 
 const CONTENT_SECTIONS = new Set<string>(Object.values(CONTENT_PATHS));
 
@@ -45,6 +46,17 @@ interface ContentDetail {
   read?: {
     author?: string | null;
     authorTitle?: string | null;
+  } | null;
+  video?: {
+    videoUrl?: string | null;
+    videoId?: string | null;
+    platform?: string | null;
+  } | null;
+  song?: {
+    spotifyUrl?: string | null;
+    spotifyId?: string | null;
+    youtubeUrl?: string | null;
+    previewAudioUrl?: string | null;
   } | null;
 }
 
@@ -184,8 +196,25 @@ export default async function DetailPage({
         </div>
       )}
 
-      {/* Cover Image */}
-      {item.coverImage?.url && (
+      {/* Playable media (video / music), when we can build a player */}
+      {section === 'videos' && item.video && (
+        <div className="mt-8">
+          <VideoEmbed videoUrl={item.video.videoUrl} videoId={item.video.videoId} />
+        </div>
+      )}
+      {section === 'songs' && item.song && (
+        <div className="mt-8">
+          <SongEmbed
+            spotifyUrl={item.song.spotifyUrl}
+            spotifyId={item.song.spotifyId}
+            youtubeUrl={item.song.youtubeUrl}
+            previewAudioUrl={item.song.previewAudioUrl}
+          />
+        </div>
+      )}
+
+      {/* Cover Image — skipped for videos where a player already renders */}
+      {item.coverImage?.url && !(section === 'videos' && item.video) && (
         <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-lg">
           <Image
             src={item.coverImage.url}

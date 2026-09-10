@@ -11,14 +11,27 @@ import { useMedia, uploadMedia, type MediaItem } from '@/lib/cms/hooks';
 import { useToast } from './ui/toast';
 import { cn } from '@/lib/utils/cn';
 
-const ACCEPT = 'image/png,image/jpeg,image/webp,image/avif,image/gif';
-const isImage = (f: File) => /^image\/(png|jpe?g|webp|avif|gif)$/.test(f.type);
+export type MediaKind = 'image' | 'audio' | 'video';
+
+const ACCEPT_BY_KIND: Record<MediaKind, string> = {
+  image: 'image/png,image/jpeg,image/webp,image/avif,image/gif',
+  audio: 'audio/mpeg,audio/mp4,audio/aac,audio/wav,audio/ogg,audio/flac',
+  video: 'video/mp4,video/webm,video/quicktime',
+};
+const ACCEPT = ACCEPT_BY_KIND.image;
+
+const okFor = (kind: MediaKind, f: File) => f.type.startsWith(`${kind}/`);
+const KIND_LABEL: Record<MediaKind, string> = {
+  image: 'image files (PNG, JPG, WebP, AVIF, GIF)',
+  audio: 'audio files (MP3, M4A, WAV, OGG, FLAC)',
+  video: 'video files (MP4, WebM, MOV)',
+};
 
 /**
  * Upload straight into the content you're editing. Files also land in the shared
  * media library as a side effect; picking an existing one is the secondary path.
  */
-function useMediaUpload() {
+function useMediaUpload(kind: MediaKind = 'image') {
   const qc = useQueryClient();
   const toast = useToast();
   const [busy, setBusy] = useState<{ done: number; total: number } | null>(null);
@@ -26,8 +39,8 @@ function useMediaUpload() {
   const run = useCallback(
     async (files: FileList | File[]): Promise<MediaItem[]> => {
       const list = Array.from(files).filter((f) => {
-        if (isImage(f)) return true;
-        toast(`${f.name}: only image files (PNG, JPG, WebP, AVIF, GIF)`, 'error');
+        if (okFor(kind, f)) return true;
+        toast(`${f.name}: only ${KIND_LABEL[kind]}`, 'error');
         return false;
       });
       if (!list.length) return [];
@@ -50,7 +63,7 @@ function useMediaUpload() {
       }
       return out;
     },
-    [qc, toast],
+    [qc, toast, kind],
   );
 
   return { run, busy };
@@ -275,23 +288,138 @@ export function GalleryField({
   );
 }
 
+// ── Media URL (string value): paste a link OR upload / pick a file ───────────
+
+const FILE_RE = {
+  audio: /\.(mp3|m4a|aac|wav|ogg|oga|flac)(\?|$)/i,
+  video: /\.(mp4|webm|mov|m4v|ogv)(\?|$)/i,
+};
+
+export function MediaUrlField({
+  value,
+  onChange,
+  accept = 'video',
+  label,
+  placeholder,
+}: {
+  value?: string | null;
+  onChange: (url: string) => void;
+  accept?: MediaKind;
+  label?: string;
+  placeholder?: string;
+}) {
+  const [libOpen, setLibOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { run, busy } = useMediaUpload(accept);
+
+  const doUpload = async (files: FileList | File[]) => {
+    const [m] = await run(files);
+    if (m) onChange(m.url);
+  };
+
+  const v = value ?? '';
+  const isFile = accept === 'audio' ? FILE_RE.audio.test(v) : FILE_RE.video.test(v);
+
+  return (
+    <div>
+      {label && <p className="text-ink mb-1.5 text-[13px] font-semibold">{label}</p>}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept={ACCEPT_BY_KIND[accept]}
+        hidden
+        onChange={(e) => {
+          if (e.target.files?.length) doUpload(e.target.files);
+          e.target.value = '';
+        }}
+      />
+
+      <input
+        type="url"
+        value={v}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder ?? 'https://… or upload a file'}
+        className="border-line focus:border-brand-500 w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none"
+      />
+
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="text-brand-700 font-semibold hover:underline"
+        >
+          {busy ? 'Uploading…' : `Upload ${accept}`}
+        </button>
+        <button
+          type="button"
+          onClick={() => setLibOpen(true)}
+          className="text-muted hover:text-ink underline"
+        >
+          Choose from library
+        </button>
+        {v && (
+          <button type="button" onClick={() => onChange('')} className="text-muted hover:text-ink underline">
+            Clear
+          </button>
+        )}
+      </div>
+
+      {isFile &&
+        (accept === 'audio' ? (
+          <audio src={v} controls preload="none" className="mt-2 w-full" />
+        ) : (
+          <video src={v} controls preload="metadata" className="border-line mt-2 w-full max-w-sm rounded-lg border" />
+        ))}
+
+      <MediaPickerDialog
+        open={libOpen}
+        kind={accept}
+        onClose={() => setLibOpen(false)}
+        onPick={(m) => {
+          onChange(m.url);
+          setLibOpen(false);
+        }}
+      />
+    </div>
+  );
+}
+
 // ── Library picker (secondary path) ──────────────────────────────────────────
+
+function MediaThumb({ m }: { m: MediaItem }) {
+  if (m.mimeType.startsWith('video/'))
+    return <video src={m.url} muted preload="metadata" className="aspect-square w-full object-cover" />;
+  if (m.mimeType.startsWith('audio/'))
+    return (
+      <div className="bg-canvas flex aspect-square w-full items-center justify-center">
+        <svg className="text-muted h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l11-2v13M9 19a2 2 0 11-4 0 2 2 0 014 0zm11-2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+    );
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={m.url} alt={m.alt ?? ''} className="aspect-square w-full object-cover" />;
+}
 
 function MediaPickerDialog({
   open,
   onClose,
   onPick,
   multi = false,
+  kind,
 }: {
   open: boolean;
   onClose: () => void;
   onPick: (m: MediaItem) => void;
   multi?: boolean;
+  kind?: MediaKind;
 }) {
   const [q, setQ] = useState('');
-  const { data, isLoading } = useMedia(q);
-  const { run, busy } = useMediaUpload();
+  const { data, isLoading } = useMedia(q, kind);
+  const { run, busy } = useMediaUpload(kind ?? 'image');
   const fileRef = useRef<HTMLInputElement>(null);
+  const accept = kind ? ACCEPT_BY_KIND[kind] : ACCEPT;
 
   const upload = async (files: FileList | File[]) => {
     const items = await run(files);
@@ -319,7 +447,7 @@ function MediaPickerDialog({
         <input
           ref={fileRef}
           type="file"
-          accept={ACCEPT}
+          accept={accept}
           multiple={multi}
           hidden
           onChange={(e) => {
@@ -348,8 +476,7 @@ function MediaPickerDialog({
                 onClick={() => onPick(m)}
                 className="border-line hover:border-brand-600 overflow-hidden rounded-lg border transition"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={m.url} alt={m.alt ?? ''} className="aspect-square w-full object-cover" />
+                <MediaThumb m={m} />
               </button>
             ))}
           </div>

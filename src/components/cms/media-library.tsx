@@ -15,6 +15,34 @@ import { formatDate } from '@/lib/utils/format';
 
 const kb = (n?: number | null) => (n == null ? '-' : n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
 
+const ACCEPT = 'image/*,audio/mpeg,audio/mp4,audio/aac,audio/wav,audio/ogg,audio/flac,video/mp4,video/webm,video/quicktime';
+
+/** Renders a media file by kind — image, audio player, or video player. */
+function MediaThumb({ media, full = false }: { media: MediaRow; full?: boolean }) {
+  const box = full
+    ? 'border-line bg-canvas w-full self-start rounded-xl border'
+    : 'bg-canvas aspect-square w-full';
+  if (media.mimeType.startsWith('video/')) {
+    return <video src={media.url} controls={full} muted preload="metadata" className={`${box} object-contain`} />;
+  }
+  if (media.mimeType.startsWith('audio/')) {
+    return full ? (
+      <div className={`${box} flex flex-col items-center justify-center gap-3 p-4`}>
+        <span className="text-muted text-[11px] uppercase tracking-wide">Audio</span>
+        <audio src={media.url} controls preload="none" className="w-full" />
+      </div>
+    ) : (
+      <div className={`${box} flex items-center justify-center`}>
+        <svg className="text-muted h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l11-2v13M9 19a2 2 0 11-4 0 2 2 0 014 0zm11-2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+    );
+  }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={media.url} alt={media.alt ?? ''} className={`${box} object-${full ? 'contain' : 'cover'}`} />;
+}
+
 export function MediaLibrary() {
   const [q, setQ] = useState('');
   const [active, setActive] = useState<MediaRow | null>(null);
@@ -46,7 +74,7 @@ export function MediaLibrary() {
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
+        accept={ACCEPT}
         multiple
         hidden
         onChange={(e) => e.target.files?.length && doUpload(e.target.files)}
@@ -74,8 +102,7 @@ export function MediaLibrary() {
               onClick={() => setActive(m)}
               className="border-line hover:border-brand-600 group overflow-hidden rounded-xl border text-left transition"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.url} alt={m.alt ?? ''} className="bg-canvas aspect-square w-full object-cover" />
+              <MediaThumb media={m} />
               <span className="text-muted block truncate px-2 py-1.5 text-[11px]">
                 {m.alt || m.key.split('/').pop()}
               </span>
@@ -138,10 +165,9 @@ function MediaDetail({ media, onClose }: { media: MediaRow; onClose: () => void 
       }
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={media.url} alt="" className="border-line bg-canvas w-full self-start rounded-xl border object-contain" />
+        <MediaThumb media={media} full />
         <div className="space-y-3">
-          <Field label="Alt text" hint="Describe the image for accessibility and SEO.">
+          <Field label="Alt text" hint="Describe the file for accessibility and SEO.">
             <Input value={alt} onChange={(e) => setAlt(e.target.value)} />
           </Field>
           <dl className="text-[12px]">
