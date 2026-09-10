@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Inter } from 'next/font/google';
+import { env } from '@/lib/env';
 import '@/styles/globals.css';
 
 const inter = Inter({
@@ -14,13 +15,29 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
 });
 
+const DESCRIPTION =
+  "What's new in Nigeria — the places, people, releases and openings worth knowing about, updated every week.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(env.siteUrl),
   title: {
-    default: 'Whatsnew.ng',
+    default: 'Whatsnew.ng — what’s new in Nigeria',
     template: '%s · Whatsnew.ng',
   },
-  description:
-    "What's new in Nigeria — the places, people, releases and openings worth knowing about, updated every week.",
+  description: DESCRIPTION,
+  applicationName: 'Whatsnew.ng',
+  openGraph: {
+    type: 'website',
+    siteName: 'Whatsnew.ng',
+    title: 'Whatsnew.ng — what’s new in Nigeria',
+    description: DESCRIPTION,
+    url: env.siteUrl,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Whatsnew.ng',
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -22,6 +22,7 @@ import {
   Inbox,
   LayoutTemplate,
   MapPin,
+  Link2,
   Menu,
   X,
 } from 'lucide-react';
@@ -45,6 +46,7 @@ const CONTENT = [
 
 const MANAGE = [
   ['/cms/homepage', 'Homepage', LayoutTemplate],
+  ['/cms/navigation', 'Navigation', Link2],
   ['/cms/pages', 'Pages', FileText],
   ['/cms/media', 'Media', ImageIcon],
   ['/cms/tags', 'Tags', Tags],

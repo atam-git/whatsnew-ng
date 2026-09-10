@@ -57,7 +57,6 @@ export function UsersView() {
         </span>
       ),
     },
-    { key: '2fa', header: '2FA', width: 'w-14', cell: (r) => (r.totpEnabled ? 'On' : '—') },
     { key: 'last', header: 'Last login', cell: (r) => <span className="text-muted text-[12px]">{r.lastLoginAt ? formatDate(r.lastLoginAt) : 'never'}</span> },
   ];
 

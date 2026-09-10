@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import type { ContentType } from '@/lib/api/types';
 
@@ -57,24 +58,24 @@ export default function SubmitListingPage() {
             Submitted for Review
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-gray-600">
-            Thanks for your submission! Our editorial team will review it carefully. We publish 
+            Thanks for your submission! Our editorial team will review it carefully. We publish
             selectively to maintain quality — no auto-listing.
           </p>
-          
+
           <div className="mt-10 flex justify-center gap-4">
-            <a
-              href="/submit"
+            <button
+              type="button"
               onClick={() => setState('idle')}
               className="inline-flex items-center rounded-full border-2 border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition hover:border-gray-400"
             >
               Submit Another
-            </a>
-            <a
+            </button>
+            <Link
               href="/"
               className="inline-flex items-center rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
             >
               Back to Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -90,7 +91,7 @@ export default function SubmitListingPage() {
             Submit a Listing
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-            Share something new and noteworthy — we'll review and publish if it's a good fit
+            Share something new and noteworthy — we&apos;ll review and publish if it&apos;s a good fit
           </p>
         </div>
       </div>

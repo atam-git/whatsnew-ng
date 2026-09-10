@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function ContactPage() {
@@ -44,19 +45,19 @@ export default function ContactPage() {
             Message Sent!
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-gray-600">
-            Thanks for reaching out. We've received your message and will get back to you soon.
+            Thanks for reaching out. We&apos;ve received your message and will get back to you soon.
           </p>
           <p className="mt-6 text-sm text-gray-500">
             Typically within 1-2 business days
           </p>
           
           <div className="mt-10">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
             >
               Back to Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -73,7 +74,7 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-            Have a question, feedback, or want to partner with us? We'd love to hear from you.
+            Have a question, feedback, or want to partner with us? We&apos;d love to hear from you.
           </p>
         </div>
       </div>
@@ -236,16 +237,23 @@ export default function ContactPage() {
               <h3 className="font-heading text-lg font-bold text-gray-900">Common Questions</h3>
               <ul className="mt-4 space-y-3 text-sm text-gray-600">
                 <li>
-                  <strong className="text-gray-900">Want to submit a listing?</strong><br />
-                  <a href="/submit" className="text-red-600 hover:text-red-700">Use our submission form →</a>
+                  <strong className="text-gray-900">Want to submit a listing?</strong>
+                  <br />
+                  <Link href="/submit" className="text-red-600 hover:text-red-700">
+                    Use our submission form →
+                  </Link>
                 </li>
                 <li>
-                  <strong className="text-gray-900">Looking to advertise?</strong><br />
-                  <a href="/work-with-us" className="text-red-600 hover:text-red-700">Check our partnerships page →</a>
+                  <strong className="text-gray-900">Looking to advertise?</strong>
+                  <br />
+                  <Link href="/work-with-us" className="text-red-600 hover:text-red-700">
+                    Check our partnerships page →
+                  </Link>
                 </li>
                 <li>
-                  <strong className="text-gray-900">Newsletter issues?</strong><br />
-                  Mention "Newsletter" in your subject line
+                  <strong className="text-gray-900">Newsletter issues?</strong>
+                  <br />
+                  Mention &quot;Newsletter&quot; in your subject line
                 </li>
               </ul>
             </div>

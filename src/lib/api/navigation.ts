@@ -18,5 +18,7 @@ export type NavGroupKey =
 
 export type NavTree = Partial<Record<NavGroupKey, NavItem[]>>;
 
+// Short window so CMS navigation edits reach the site quickly. Swap to
+// on-demand `revalidateTag('navigation')` if this ever needs to be instant.
 export const getNavigation = () =>
-  apiGet<NavTree>('/navigation', { next: { revalidate: 300, tags: ['navigation'] } });
+  apiGet<NavTree>('/navigation', { next: { revalidate: 30, tags: ['navigation'] } });

@@ -295,7 +295,6 @@ export interface UserRow {
   name: string;
   role: string;
   isActive: boolean;
-  totpEnabled: boolean;
   lastLoginAt?: string | null;
   createdAt: string;
   cityScope: { id: string; name: string }[];
@@ -420,6 +419,58 @@ export function useSendTestIssue() {
 
 /** Same-origin URL for the rendered-email preview (open in a new tab). */
 export const issuePreviewUrl = (id: string) => `/api/v1/newsletter/issues/${id}/preview`;
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+
+export type NavGroup =
+  | 'HEADER'
+  | 'FOOTER_PRIMARY'
+  | 'FOOTER_COMPANY'
+  | 'FOOTER_LEGAL'
+  | 'CITY_LIST'
+  | 'CATEGORY_TABS';
+
+export interface NavItemRow {
+  id: string;
+  group: NavGroup;
+  label: string;
+  href: string;
+  sortOrder: number;
+  isExternal: boolean;
+  parentId?: string | null;
+}
+
+export function useNavItems() {
+  return useQuery({ queryKey: ['nav'], queryFn: () => cmsFetch<NavItemRow[]>('/navigation/all') });
+}
+
+export function useSaveNavItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: Record<string, unknown> & { id?: string }) =>
+      id
+        ? cmsFetch(`/navigation/${id}`, { method: 'PATCH', json: data })
+        : cmsFetch('/navigation', { method: 'POST', json: data }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['nav'] }),
+  });
+}
+
+export function useDeleteNavItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => cmsFetch(`/navigation/${id}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['nav'] }),
+  });
+}
+
+export function useReorderNav() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) =>
+      cmsFetch('/navigation/reorder', { method: 'PATCH', json: { ids } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['nav'] }),
+  });
+}
 
 export function useSubscriberCount() {
   return useQuery({

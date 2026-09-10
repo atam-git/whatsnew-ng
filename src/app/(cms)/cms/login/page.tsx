@@ -21,7 +21,6 @@ function LoginForm() {
         body: JSON.stringify({
           email: form.get('email'),
           password: form.get('password'),
-          totp: form.get('totp') || undefined,
         }),
       });
       if (!res.ok) {
@@ -54,12 +53,6 @@ function LoginForm() {
         type="password"
         required
         placeholder="Password"
-        className="border-line w-full rounded-md border px-3 py-2"
-      />
-      <input
-        name="totp"
-        inputMode="numeric"
-        placeholder="2FA code (if enabled)"
         className="border-line w-full rounded-md border px-3 py-2"
       />
       {error && <p className="text-sm text-red-600">{error}</p>}

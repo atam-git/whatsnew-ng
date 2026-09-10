@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { CONTENT_PATHS, getContentBySlug, listContent, type ContentPath } from '@/lib/api/content';
+import { env } from '@/lib/env';
 import { formatDate } from '@/lib/utils/format';
 import { BackButton } from '@/components/business/back-button';
 import { ContentCard } from '@/components/business/content-card';
@@ -60,9 +61,50 @@ export async function generateMetadata({
   const { section, slug } = await params;
   const item = await load(section, slug);
   if (!item) return {};
+  const title = item.seoTitle ?? item.title;
+  const description = item.seoDescription ?? item.excerpt ?? undefined;
+  const images = item.coverImage?.url
+    ? [{ url: item.coverImage.url, alt: item.coverImage.alt ?? item.title }]
+    : undefined;
   return {
-    title: item.seoTitle ?? item.title,
-    description: item.seoDescription ?? item.excerpt ?? undefined,
+    title,
+    description,
+    alternates: { canonical: `/${section}/${slug}` },
+    openGraph: {
+      type: section === 'reads' ? 'article' : 'website',
+      title,
+      description,
+      url: `/${section}/${slug}`,
+      images,
+      ...(item.publishDate ? { publishedTime: item.publishDate } : {}),
+    },
+    twitter: { card: 'summary_large_image', title, description, images: images?.map((i) => i.url) },
+  };
+}
+
+function jsonLd(section: string, slug: string, item: ContentDetail) {
+  const url = `${env.siteUrl.replace(/\/$/, '')}/${section}/${slug}`;
+  const image = item.coverImage?.url ? [item.coverImage.url] : undefined;
+  if (section === 'reads') {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      headline: item.title,
+      description: item.excerpt ?? undefined,
+      image,
+      datePublished: item.publishDate ?? undefined,
+      author: item.read?.author ? { '@type': 'Person', name: item.read.author } : undefined,
+      publisher: { '@type': 'Organization', name: 'Whatsnew.ng' },
+      mainEntityOfPage: url,
+    };
+  }
+  return {
+    '@context': 'https://schema.org',
+    '@type': section === 'events' || section === 'churches' ? 'Event' : 'WebPage',
+    name: item.title,
+    description: item.excerpt ?? undefined,
+    image,
+    url,
   };
 }
 
@@ -84,6 +126,10 @@ export default async function DetailPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(section, slug, item)) }}
+      />
       {/* Back Button & Breadcrumb - aligned left */}
       <div className="mb-8 flex items-center gap-3 text-sm">
         <BackButton />
