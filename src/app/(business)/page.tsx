@@ -146,7 +146,9 @@ export default async function HomePage({
       </SectionBand>
 
       <SectionBand tone="plain">
-        <NewsletterSignup />
+        <div id="newsletter">
+          <NewsletterSignup />
+        </div>
       </SectionBand>
 
       <SectionBand tone="surface">

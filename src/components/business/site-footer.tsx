@@ -16,6 +16,7 @@ const COMPANY = [
   { label: 'About us', href: '/about' },
   { label: 'Work with us', href: '/work-with-us' },
   { label: 'Submit a listing', href: '/submit' },
+  { label: 'FAQ', href: '/faq' },
   { label: 'Contact', href: '/contact' },
 ];
 

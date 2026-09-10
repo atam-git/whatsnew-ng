@@ -288,6 +288,12 @@ export function ContactView({ settings }: { settings: SiteSettings | null }) {
                   Mention &quot;Newsletter&quot; in your subject line
                 </li>
               </ul>
+              <Link
+                href="/faq"
+                className="mt-4 inline-block text-sm font-medium text-red-600 hover:text-red-700"
+              >
+                See all FAQs →
+              </Link>
             </div>
           </div>
         </div>
