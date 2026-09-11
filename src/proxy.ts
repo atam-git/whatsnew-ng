@@ -24,7 +24,7 @@ function loginRedirect(req: NextRequest): NextResponse {
  * otherwise every user gets bounced out every 15 minutes even though their
  * session is still valid.
  */
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (!pathname.startsWith('/cms') || pathname === '/cms/login') {
     return NextResponse.next();

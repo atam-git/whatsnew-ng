@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect } from 'react';
 import {
@@ -119,8 +118,12 @@ export function RichTextEditor({
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
-      Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener' } }),
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+        // Tiptap v3's StarterKit bundles Link itself now - configure it here
+        // instead of registering a second, separate Link extension.
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener' } },
+      }),
       Placeholder.configure({ placeholder }),
     ],
     content: value ?? '',
@@ -137,7 +140,7 @@ export function RichTextEditor({
   useEffect(() => {
     if (!editor || !value) return;
     const current = JSON.stringify(editor.getJSON());
-    if (current !== JSON.stringify(value)) editor.commands.setContent(value, false);
+    if (current !== JSON.stringify(value)) editor.commands.setContent(value, { emitUpdate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, JSON.stringify(value)]);
 
