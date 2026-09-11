@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSiteSettings, useSaveSiteSettings, type SiteSettingsRow } from '@/lib/cms/admin-hooks';
 import { PageHeader, Card, Field, Input, Button, Spinner, useToast } from './ui';
+import { formatDateTime } from '@/lib/utils/format';
 
 type Form = {
   contactEmail: string;
@@ -109,7 +110,7 @@ export function SettingsView() {
             </Button>
             {data?.updatedAt && (
               <span className="text-muted text-[12px]">
-                Last saved {new Date(data.updatedAt).toLocaleString()}
+                Last saved {formatDateTime(data.updatedAt)} WAT
               </span>
             )}
           </div>

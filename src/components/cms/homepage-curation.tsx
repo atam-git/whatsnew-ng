@@ -15,6 +15,8 @@ import { CONTENT_PATHS } from '@/lib/api/content';
 import { PageHeader, Card, Button, Field, Input, Select, Toggle, EmptyState, Spinner, useToast, useConfirm } from './ui';
 import { StatusBadge } from './ui/status-badge';
 import { ContentPicker } from './content-picker';
+import { Tooltip } from './ui/tooltip';
+import { useUnsavedChangesGuard } from './use-unsaved-changes-guard';
 
 const MODES = ['MANUAL', 'AUTO_RECENT', 'AUTO_POPULAR', 'AUTO_TRENDING'] as const;
 const TYPE_ENUMS = Object.entries(CONTENT_PATHS).map(([enumVal, path]) => ({
@@ -108,10 +110,27 @@ function ShelfCard({
   const [autoContentType, setAutoContentType] = useState(shelf.autoContentType ?? '');
   const [autoLimit, setAutoLimit] = useState(shelf.autoLimit ?? 6);
   const [isActive, setIsActive] = useState(shelf.isActive);
+  // Bumped after a successful "Save items" to remount ContentPicker, clearing
+  // its search - while adding items, the search deliberately stays put (see
+  // ContentPicker) so multiple picks from the same search don't require
+  // retyping it each time.
+  const [pickerResetKey, setPickerResetKey] = useState(0);
   const [items, setItems] = useState(
     shelf.items.map((it) => ({ id: it.contentId, title: it.content.title, type: it.content.type, status: it.content.status })),
   );
   const [itemsDirty, setItemsDirty] = useState(false);
+
+  // Track if shelf settings have changed
+  const isDirty = 
+    title !== shelf.title ||
+    mode !== shelf.mode ||
+    (mode !== 'MANUAL' && (autoContentType !== (shelf.autoContentType ?? '') || autoLimit !== (shelf.autoLimit ?? 6))) ||
+    isActive !== shelf.isActive ||
+    itemsDirty;
+
+  // Warn before leaving (tab close/refresh, browser Back, in-app link clicks)
+  // while this shelf has unsaved changes - including newly-added items.
+  useUnsavedChangesGuard(isDirty);
 
   const saveShelf = async (patch?: Partial<{ sortOrder: number }>) => {
     await upsert.mutateAsync({
@@ -125,6 +144,7 @@ function ShelfCard({
       sortOrder: patch?.sortOrder ?? shelf.sortOrder,
     });
     toast('Shelf saved', 'success');
+    setItemsDirty(false);
   };
 
   const move = (dir: -1 | 1) => saveShelf({ sortOrder: shelf.sortOrder + dir * 1.5 });
@@ -141,22 +161,31 @@ function ShelfCard({
   return (
     <Card bodyClassName="p-0">
       <div className="border-line flex flex-wrap items-center gap-2 border-b px-5 py-3">
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-9 max-w-xs font-semibold" />
-        <Select value={mode} onChange={(e) => setMode(e.target.value)} className="h-9 w-44">
-          {MODES.map((m) => (
-            <option key={m} value={m}>{m.replace('_', ' ').toLowerCase()}</option>
-          ))}
-        </Select>
-        <Toggle checked={isActive} onChange={setIsActive} label="Active" />
+        <div className="flex items-center gap-1">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-9 max-w-xs font-semibold" />
+          <Tooltip content="The heading shown on the homepage for this shelf" />
+        </div>
+        <div className="flex items-center gap-1">
+          <Select value={mode} onChange={(e) => setMode(e.target.value)} className="h-9 w-44">
+            {MODES.map((m) => (
+              <option key={m} value={m}>{m.replace('_', ' ').toLowerCase()}</option>
+            ))}
+          </Select>
+          <Tooltip content="Manual: you pick items. Auto: system picks based on rules (recent, popular, trending)" />
+        </div>
+        <div className="flex items-center gap-1">
+          <Toggle checked={isActive} onChange={setIsActive} label="Active" />
+          <Tooltip content="Turn off to hide this shelf from the homepage" />
+        </div>
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={() => move(-1)} disabled={index === 0} className="text-muted hover:text-ink disabled:opacity-30">
+          <button onClick={() => move(-1)} disabled={index === 0} className="text-muted hover:text-ink disabled:opacity-30" title="Move shelf up">
             <ArrowUp className="h-4 w-4" />
           </button>
-          <button onClick={() => move(1)} disabled={index === total - 1} className="text-muted hover:text-ink disabled:opacity-30">
+          <button onClick={() => move(1)} disabled={index === total - 1} className="text-muted hover:text-ink disabled:opacity-30" title="Move shelf down">
             <ArrowDown className="h-4 w-4" />
           </button>
           <Button size="sm" loading={upsert.isPending} onClick={() => saveShelf()}>
-            Save
+            Save{isDirty && ' *'}
           </Button>
           <button
             onClick={async () => {
@@ -166,6 +195,7 @@ function ShelfCard({
               toast('Shelf deleted', 'success');
             }}
             className="text-muted hover:text-[--color-danger-600] ml-1"
+            title="Delete shelf"
           >
             <X className="h-4 w-4" />
           </button>
@@ -203,6 +233,7 @@ function ShelfCard({
             )}
             <div className="mt-3">
               <ContentPicker
+                key={pickerResetKey}
                 excludeIds={items.map((i) => i.id)}
                 onAdd={(c) => { setItems([...items, { id: c.id, title: c.title, type: c.type, status: c.status }]); setItemsDirty(true); }}
               />
@@ -215,6 +246,7 @@ function ShelfCard({
                   onClick={async () => {
                     await setSlots.mutateAsync({ id: shelf.id, contentIds: items.map((i) => i.id) });
                     setItemsDirty(false);
+                    setPickerResetKey((k) => k + 1);
                     toast('Items saved', 'success');
                   }}
                 >
@@ -225,7 +257,7 @@ function ShelfCard({
           </>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Content type" hint="Leave blank to mix all types.">
+            <Field label="Content type" hint="Leave blank to mix all types." tooltip="Filter by content type (e.g., only hotels or only events). Leave blank to show all types.">
               <Select value={autoContentType} onChange={(e) => setAutoContentType(e.target.value)}>
                 <option value="">All types</option>
                 {TYPE_ENUMS.map((t) => (
@@ -233,7 +265,7 @@ function ShelfCard({
                 ))}
               </Select>
             </Field>
-            <Field label="How many">
+            <Field label="How many" tooltip="Number of items to show in this shelf (e.g., 6 or 12)">
               <Input type="number" value={autoLimit} onChange={(e) => setAutoLimit(Number(e.target.value))} />
             </Field>
           </div>

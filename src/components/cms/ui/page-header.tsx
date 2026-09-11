@@ -44,20 +44,20 @@ export function PageHeader({
   // For detail pages, render the title and back button in the content area
   if (backHref) {
     return (
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
+      <div className="bg-canvas sticky top-14 z-20 -mx-4 -mt-3 mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3 sm:-mx-6 sm:-mt-4 sm:px-6">
+        <div className="flex items-center gap-3">
           <Link
             href={backHref}
-            className="border-line text-muted hover:text-ink mt-0.5 flex h-8 w-8 items-center justify-center rounded-full border transition"
+            className="border-line text-muted hover:text-ink flex h-8 w-8 items-center justify-center rounded-full border transition"
             aria-label="Back"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="font-heading text-ink text-[24px] font-bold leading-tight tracking-tight">
+            <h1 className="font-heading text-ink text-[20px] font-bold leading-tight tracking-tight">
               {title}
             </h1>
-            {subtitle && <p className="text-muted mt-1 text-[13px]">{subtitle}</p>}
+            {subtitle && <p className="text-muted mt-0.5 text-[13px]">{subtitle}</p>}
           </div>
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}

@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
-import { useIssues, useCreateIssue, type IssueRow } from '@/lib/cms/admin-hooks';
-import { PageHeader, Button, DataTable, StatusBadge, EmptyState, Dialog, Field, Input, useToast, type Column } from './ui';
+import { Plus, Trash2 } from 'lucide-react';
+import { useIssues, useCreateIssue, useDeleteIssue, type IssueRow } from '@/lib/cms/admin-hooks';
+import { PageHeader, Button, DataTable, StatusBadge, EmptyState, Dialog, Field, Input, useToast, useConfirm, type Column } from './ui';
 import { formatDate } from '@/lib/utils/format';
 import { NewsletterSchedule } from './newsletter-schedule';
 
 export function NewsletterList() {
   const router = useRouter();
   const toast = useToast();
+  const confirm = useConfirm();
   const { data, isLoading } = useIssues();
   const create = useCreateIssue();
+  const del = useDeleteIssue();
   const [subject, setSubject] = useState<string | null>(null);
 
   const columns: Column<IssueRow>[] = [
@@ -41,6 +43,38 @@ export function NewsletterList() {
       ),
     },
     { key: 'created', header: 'Created', cell: (r) => <span className="text-muted text-[12px]">{formatDate(r.createdAt)}</span> },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      cell: (r) => (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={async (e) => {
+            e.stopPropagation();
+            const ok = await confirm({
+              title: `Delete "${r.subject}"?`,
+              message:
+                r.status === 'SENT'
+                  ? 'This issue was already sent - deleting it only removes it from this list, past recipients keep the email.'
+                  : 'This cannot be undone.',
+              danger: true,
+              confirmLabel: 'Delete',
+            });
+            if (!ok) return;
+            try {
+              await del.mutateAsync(r.id);
+              toast('Deleted', 'success');
+            } catch (err) {
+              toast(err instanceof Error ? err.message : 'Delete failed', 'error');
+            }
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      ),
+    },
   ];
 
   return (

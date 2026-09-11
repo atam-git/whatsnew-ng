@@ -16,7 +16,7 @@ export interface ContentRow {
   publishDate?: string | null;
   featured: boolean;
   coverImage?: { url: string; alt?: string | null } | null;
-  cities: { id: string; name: string }[];
+  cities: { id: string; name: string; state?: string | null }[];
   tags: { id: string; name: string; slug?: string }[];
 }
 
@@ -63,6 +63,20 @@ export function useDeleteContent(type: string) {
   return useMutation({
     mutationFn: (id: string) => cmsFetch(`/${type}/${id}`, { method: 'DELETE' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['content', type] }),
+  });
+}
+
+export function useFeaturedContent(excludeId?: string) {
+  return useQuery({
+    queryKey: ['featured-content', excludeId ?? ''],
+    queryFn: async () => {
+      const result = await cmsFetch<{ id: string; type: string; title: string } | null>(
+        `/content/featured${excludeId ? `?excludeId=${excludeId}` : ''}`,
+      );
+      return result ?? null;
+    },
+    staleTime: 10_000,
+    initialData: null,
   });
 }
 

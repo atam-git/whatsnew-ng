@@ -1,4 +1,4 @@
-title (required),excerpt,publishDate,artist (required),spotifyUrl,youtubeUrl,releaseDate,isAlbum,featuredArtists,genre,label,producer
-Timeless,The long-awaited fifth studio album.,2026-03-31,Davido,https://open.spotify.com/album/xyz,https://youtube.com/watch?v=aaaaaaaaaaa,2026-03-31,true,Musa Keys; Focalistic,Afrobeats,DMW / Columbia,Magicsticks
-Owo Eyo,A street-pop single tipped to run the rains.,2026-09-05,Seyi Vibez,https://open.spotify.com/track/abc,,2026-09-05,false,,Street-pop; Afrobeats,Dapper Music,P.Priime
-Higher,A gospel-fusion EP recorded live in Enugu.,2026-09-07,Mercy Chinwo,,https://youtube.com/watch?v=bbbbbbbbbbb,2026-09-07,true,,Gospel,Blazing Music,
+title (required),excerpt,publishDate,artist (required),featuredArtists,releaseDate,isAlbum,trackCount,durationSeconds,genre,label,producer,spotifyUrl,appleMusicUrl,youtubeMusicUrl,audiomackUrl
+Timeless,The long-awaited fifth studio album.,2026-03-31,Davido,Musa Keys; Focalistic,2026-03-31,true,17,3120,Afrobeats,DMW / Columbia,Magicsticks,https://open.spotify.com/album/xyz,https://music.apple.com/us/album/timeless/1440783617,https://youtube.com/watch?v=aaaaaaaaaaa,https://audiomack.com/davido/album/timeless
+Owo Eyo,A street-pop single tipped to run the rains.,2026-09-05,Seyi Vibez,,2026-09-05,false,,195,Street-pop; Afrobeats,Dapper Music,P.Priime,https://open.spotify.com/track/abc,,,https://audiomack.com/seyi-vibez/song/owo-eyo
+Higher,A gospel-fusion EP recorded live in Enugu.,2026-09-07,Mercy Chinwo,,2026-09-07,true,6,1260,Gospel,Blazing Music,,,,https://youtube.com/watch?v=bbbbbbbbbbb,

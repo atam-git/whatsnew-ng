@@ -8,7 +8,7 @@ export function Card({
   bodyClassName,
   children,
 }: {
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
   actions?: React.ReactNode;
   className?: string;

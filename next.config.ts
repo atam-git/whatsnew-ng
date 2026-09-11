@@ -16,6 +16,15 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'picsum.photos' },
       { protocol: 'https', hostname: 'fastly.picsum.photos' },
+      // Streaming-platform thumbnail fallbacks for Song/Video cards with no
+      // uploaded cover (see streamingThumbnail() / ExternalThumbnailService).
+      { protocol: 'https', hostname: 'img.youtube.com' },
+      { protocol: 'https', hostname: '*.spotifycdn.com' },
+      { protocol: 'https', hostname: 'i.scdn.co' },
+      { protocol: 'https', hostname: '*.scdn.co' },
+      { protocol: 'https', hostname: '*.mzstatic.com' },
+      { protocol: 'https', hostname: 'i.audiomack.com' },
+      { protocol: 'https', hostname: 'i.vimeocdn.com' },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

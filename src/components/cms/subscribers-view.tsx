@@ -10,7 +10,6 @@ import {
   subscribersExportUrl,
   type SubscriberRow,
 } from '@/lib/cms/admin-hooks';
-import { useCities } from '@/lib/cms/hooks';
 import {
   PageHeader,
   Button,
@@ -20,7 +19,6 @@ import {
   Dialog,
   Field,
   Input,
-  Select,
   EmptyState,
   useToast,
   useConfirm,
@@ -38,13 +36,12 @@ const FILTERS = [
 export function SubscribersView() {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
-  const [adding, setAdding] = useState<{ email: string; cityId: string } | null>(null);
+  const [adding, setAdding] = useState<{ email: string } | null>(null);
 
   const { data, isLoading } = useSubscribers({ status: status || undefined, q: q || undefined });
   const add = useAddSubscriber();
   const setStatusM = useSetSubscriberStatus();
   const del = useDeleteSubscriber();
-  const cities = useCities();
   const toast = useToast();
   const confirm = useConfirm();
 
@@ -53,7 +50,6 @@ export function SubscribersView() {
   const columns: Column<SubscriberRow>[] = [
     { key: 'email', header: 'Email', primary: true, cell: (r) => <span className="text-ink font-medium">{r.email}</span> },
     { key: 'status', header: 'Status', width: 'w-32', cell: (r) => <StatusBadge status={r.status} /> },
-    { key: 'city', header: 'City', width: 'w-32', cell: (r) => <span className="text-muted text-[13px]">{r.city?.name ?? '-'}</span> },
     { key: 'source', header: 'Source', width: 'w-36', cell: (r) => <span className="text-muted text-[13px]">{r.source ?? '-'}</span> },
     { key: 'subscribedAt', header: 'Subscribed', width: 'w-32', cell: (r) => <span className="text-muted text-[12px]">{formatDate(r.subscribedAt)}</span> },
     {
@@ -110,7 +106,6 @@ export function SubscribersView() {
     try {
       await add.mutateAsync({
         email: adding.email.trim(),
-        cityId: adding.cityId || undefined,
         source: 'cms',
       });
       toast('Subscriber added', 'success');
@@ -135,7 +130,7 @@ export function SubscribersView() {
             >
               <Download className="h-4 w-4" /> Export CSV
             </a>
-            <Button onClick={() => setAdding({ email: '', cityId: '' })}>
+            <Button onClick={() => setAdding({ email: '' })}>
               <Plus className="h-4 w-4" /> Add subscriber
             </Button>
           </>
@@ -203,19 +198,6 @@ export function SubscribersView() {
                 onChange={(e) => setAdding({ ...adding, email: e.target.value })}
                 placeholder="reader@example.com"
               />
-            </Field>
-            <Field label="City edition" hint="Optional - for future city newsletters.">
-              <Select
-                value={adding.cityId}
-                onChange={(e) => setAdding({ ...adding, cityId: e.target.value })}
-              >
-                <option value="">No preference</option>
-                {(cities.data ?? []).map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
             </Field>
           </div>
         )}

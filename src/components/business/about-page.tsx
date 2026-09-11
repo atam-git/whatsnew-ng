@@ -12,6 +12,8 @@ const DEFAULTS = {
   heroLede:
     "A weekly guide to what's genuinely new in Nigeria - the places, releases, events and opportunities worth knowing about, city by city.",
   quickFacts: ['Every Wednesday', '9 cities', 'Curated, not crowdsourced'],
+  coverHeading: 'What we cover',
+  coverIntro: 'Ten kinds of new, sorted by city and refreshed every week.',
   coverItems: [
     { label: 'Restaurants & bars', desc: 'New tables, cafés and bars worth the trip.', href: '/restaurants' },
     { label: 'Hotels & stays', desc: 'Openings and standout stays, chain and independent.', href: '/hotels' },
@@ -72,6 +74,8 @@ export async function AboutPage() {
   const raw = (page.data ?? {}) as Record<string, unknown>;
   const heroLede = pick(raw.heroLede, DEFAULTS.heroLede);
   const quickFacts = pick(raw.quickFacts, DEFAULTS.quickFacts);
+  const coverHeading = pick(raw.coverHeading, DEFAULTS.coverHeading);
+  const coverIntro = pick(raw.coverIntro, DEFAULTS.coverIntro);
   const coverItems = pick(raw.coverItems, DEFAULTS.coverItems);
   const coverFootnote = pick(raw.coverFootnote, DEFAULTS.coverFootnote);
   const principlesHeading = pick(raw.principlesHeading, DEFAULTS.principlesHeading);
@@ -122,11 +126,9 @@ export async function AboutPage() {
           <div className="mx-auto max-w-5xl px-4 py-14 sm:py-20">
             <div className="text-center">
               <h2 className="font-heading text-ink text-2xl font-bold tracking-tight sm:text-3xl">
-                What we cover
+                {coverHeading}
               </h2>
-              <p className="text-muted mx-auto mt-3 max-w-xl">
-                Ten kinds of new, sorted by city and refreshed every week.
-              </p>
+              <p className="text-muted mx-auto mt-3 max-w-xl">{coverIntro}</p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {coverItems.map((item, i) => (

@@ -11,3 +11,5 @@ export { SearchInput } from './search-input';
 export { DataTable } from './data-table';
 export type { Column } from './data-table';
 export { PageHeader } from './page-header';
+export { Tooltip } from './tooltip';
+export { DateTimePicker } from './datetime-picker';

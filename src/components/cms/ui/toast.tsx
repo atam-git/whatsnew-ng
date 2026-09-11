@@ -22,9 +22,9 @@ export function useToast() {
 }
 
 const STYLES: Record<Kind, string> = {
-  success: 'border-[--color-success-600]/30 bg-[--color-success-50] text-[--color-success-700]',
-  error: 'border-[--color-danger-600]/30 bg-[--color-danger-50] text-[--color-danger-700]',
-  info: 'border-line bg-surface text-ink',
+  success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+  error: 'border-red-200 bg-red-50 text-red-700',
+  info: 'border-gray-200 bg-white text-gray-900',
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

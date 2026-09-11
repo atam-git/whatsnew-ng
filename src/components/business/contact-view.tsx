@@ -269,13 +269,6 @@ export function ContactView({ settings }: { settings: SiteSettings | null }) {
               <h3 className="font-heading text-lg font-bold text-gray-900">Common Questions</h3>
               <ul className="mt-4 space-y-3 text-sm text-gray-600">
                 <li>
-                  <strong className="text-gray-900">Want to submit a listing?</strong>
-                  <br />
-                  <Link href="/submit" className="text-red-600 hover:text-red-700">
-                    Use our submission form →
-                  </Link>
-                </li>
-                <li>
                   <strong className="text-gray-900">Looking to advertise?</strong>
                   <br />
                   <Link href="/work-with-us" className="text-red-600 hover:text-red-700">

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -11,7 +12,9 @@ import { NewsletterSignup } from '@/components/business/newsletter-signup';
 import { RichText } from '@/components/business/rich-text';
 import { ContentFacts } from '@/components/business/content-facts';
 import { CoverFallback } from '@/components/business/cover-fallback';
+import { streamingThumbnail } from '@/lib/utils/card-thumbnail';
 import { SongEmbed, VideoEmbed } from '@/components/business/media-embed';
+import { AdsProvider, LeaderboardAd, MobileBannerAd } from '@/components/ads';
 
 const CONTENT_SECTIONS = new Set<string>(Object.values(CONTENT_PATHS));
 
@@ -52,12 +55,19 @@ interface ContentDetail {
     videoUrl?: string | null;
     videoId?: string | null;
     platform?: string | null;
+    previewThumbnailUrl?: string | null;
   } | null;
   song?: {
     spotifyUrl?: string | null;
     spotifyId?: string | null;
-    youtubeUrl?: string | null;
+    appleMusicUrl?: string | null;
+    youtubeMusicUrl?: string | null;
+    audiomackUrl?: string | null;
     previewAudioUrl?: string | null;
+    previewThumbnailUrl?: string | null;
+  } | null;
+  church?: {
+    streamUrl?: string | null;
   } | null;
 }
 
@@ -130,34 +140,41 @@ export default async function DetailPage({
   const item = await load(section, slug);
   if (!item) notFound();
 
+  // Twitch's embed requires a `parent` param matching the actual serving
+  // domain - taken from the request itself so it's correct in both dev
+  // (localhost) and prod without needing separate config. Twitch wants a
+  // bare hostname, no port.
+  const siteHost = (await headers()).get('host')?.split(':')[0] ?? null;
+
   const categoryLabel = SECTION_LABELS[section] || section;
 
   // Fetch related content from the same section
-  const relatedContent = await listContent(section as ContentPath, { limit: 4 })
+  const relatedContent = await listContent(section as ContentPath, { status: 'PUBLISHED', limit: 4 })
     .then((res) => res.data.filter((i) => i.slug !== slug).slice(0, 3))
     .catch(() => []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(section, slug, item)) }}
-      />
-      {/* Back Button & Breadcrumb - aligned left */}
-      <div className="mb-8 flex items-center gap-3 text-sm">
-        <BackButton />
-        <div className="flex items-center gap-2 text-gray-400">
-          <Link href="/" className="hover:text-gray-600">
-            Home
-          </Link>
-          <span>/</span>
-          <Link href={`/${section}`} className="hover:text-gray-600">
-            {categoryLabel}
-          </Link>
+    <AdsProvider>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(section, slug, item)) }}
+        />
+        {/* Back Button & Breadcrumb - aligned left */}
+        <div className="mb-8 flex items-center gap-3 text-sm">
+          <BackButton />
+          <div className="flex items-center gap-2 text-gray-400">
+            <Link href="/" className="hover:text-gray-600">
+              Home
+            </Link>
+            <span>/</span>
+            <Link href={`/${section}`} className="hover:text-gray-600">
+              {categoryLabel}
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <article className="mx-auto max-w-3xl">
+        <article className="mx-auto max-w-3xl">
         {/* Category → the section listing */}
         <Link
           href={`/${section}`}
@@ -197,39 +214,60 @@ export default async function DetailPage({
         </div>
       )}
 
-      {/* Playable media (video / music), when we can build a player */}
+      {/* Playable media (video / music / church stream), when we can build a player */}
       {section === 'videos' && item.video && (
         <div className="mt-8">
-          <VideoEmbed videoUrl={item.video.videoUrl} videoId={item.video.videoId} />
+          <VideoEmbed videoUrl={item.video.videoUrl} videoId={item.video.videoId} siteHost={siteHost} />
         </div>
       )}
+
+      {/* Church stream player */}
+      {section === 'churches' && item.church?.streamUrl && (
+        <div className="mt-8">
+          <VideoEmbed videoUrl={item.church.streamUrl} videoId={null} siteHost={siteHost} />
+        </div>
+      )}
+
+      {/* Streaming players (Spotify, Apple Music, YouTube Music, Audiomack) */}
       {section === 'songs' && item.song && (
         <div className="mt-8">
           <SongEmbed
             spotifyUrl={item.song.spotifyUrl}
             spotifyId={item.song.spotifyId}
-            youtubeUrl={item.song.youtubeUrl}
-            previewAudioUrl={item.song.previewAudioUrl}
+            appleMusicUrl={item.song.appleMusicUrl}
+            youtubeMusicUrl={item.song.youtubeMusicUrl}
+            audiomackUrl={item.song.audiomackUrl}
           />
         </div>
       )}
 
-      {/* Cover — falls back to the brand mark; skipped when a media player
-          already renders above (video, or a song with a playable source) */}
-      {!(section === 'videos' && item.video) &&
-        !(
-          section === 'songs' &&
-          item.song &&
-          (item.song.spotifyUrl ||
-            item.song.spotifyId ||
-            item.song.youtubeUrl ||
-            item.song.previewAudioUrl)
-        ) && (
+      {/* Cover — always shown for all content types except videos */}
+      {!(section === 'videos' && item.video) && (() => {
+        // Get cover image or streaming thumbnail (like ContentCard does)
+        const coverUrl = item.coverImage?.url || (() => {
+          if (section === 'songs' && item.song) {
+            if (item.song.previewThumbnailUrl) return item.song.previewThumbnailUrl;
+            // Extract YouTube ID from youtubeMusicUrl
+            const ytMatch = item.song.youtubeMusicUrl?.match(
+              /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+            );
+            return ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg` : null;
+          }
+          if (section === 'videos' && item.video) {
+            const videoId = item.video.videoId || item.video.videoUrl?.match(
+              /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
+            )?.[1];
+            return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : item.video.previewThumbnailUrl;
+          }
+          return null;
+        })();
+
+        return (
           <div className="bg-canvas relative mt-8 aspect-[16/9] overflow-hidden rounded-lg">
-            {item.coverImage?.url ? (
+            {coverUrl ? (
               <Image
-                src={item.coverImage.url}
-                alt={item.coverImage.alt ?? item.title}
+                src={coverUrl}
+                alt={item.coverImage?.alt ?? item.title}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 768px"
@@ -239,7 +277,8 @@ export default async function DetailPage({
               <CoverFallback />
             )}
           </div>
-        )}
+        );
+      })()}
 
       {/* Byline - authorship, not interactive */}
       {item.read?.author && (
@@ -345,24 +384,31 @@ export default async function DetailPage({
           </div>
         </section>
       )}
-      </article>
+          </article>
 
-      {/* More like this Section */}
-      {relatedContent.length > 0 && (
-        <section className="mx-auto mt-16 max-w-5xl">
-          <h2 className="mb-6 font-heading text-2xl font-bold">More like this</h2>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {relatedContent.map((content) => (
-              <ContentCard key={content.slug} item={content} />
-            ))}
-          </div>
+        {/* More like this Section */}
+        {relatedContent.length > 0 && (
+          <section className="mx-auto mt-16 max-w-5xl">
+            <h2 className="mb-6 font-heading text-2xl font-bold">More like this</h2>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {relatedContent.map((content) => (
+                <ContentCard key={content.slug} item={content} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Ad placement: Before newsletter (both desktop and mobile) */}
+        <div className="mt-16">
+          <LeaderboardAd className="mb-8" />
+          <MobileBannerAd className="mb-8" />
+        </div>
+
+        {/* Newsletter Signup */}
+        <section className="mx-auto mt-8 max-w-5xl pb-16">
+          <NewsletterSignup />
         </section>
-      )}
-
-      {/* Newsletter Signup */}
-      <section className="mx-auto mt-16 max-w-5xl pb-16">
-        <NewsletterSignup />
-      </section>
-    </div>
+      </div>
+    </AdsProvider>
   );
 }

@@ -57,9 +57,9 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'How do I submit a place, launch or event?',
     a: (
       <>
-        Use the{' '}
-        <Link href="/submit" className="text-brand-600 hover:underline">
-          submission form
+        Send us a message through{' '}
+        <Link href="/contact" className="text-brand-600 hover:underline">
+          Contact
         </Link>
         . It&apos;s free. An editor reviews every submission - being submitted doesn&apos;t
         guarantee a listing, and we may edit details for accuracy.

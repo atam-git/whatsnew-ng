@@ -344,13 +344,20 @@ export function MediaUrlField({
       />
 
       <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          className="text-brand-700 font-semibold hover:underline"
-        >
-          {busy ? 'Uploading…' : `Upload ${accept}`}
-        </button>
+        {busy ? (
+          <span className="text-brand-700 flex items-center gap-2 text-sm font-semibold">
+            <Spinner className="h-4 w-4" />
+            Uploading {accept}...
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="text-brand-700 font-semibold hover:underline"
+          >
+            Upload {accept}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setLibOpen(true)}

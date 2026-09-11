@@ -49,9 +49,6 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         size="sm"
         footer={
           <>
-            <Button variant="secondary" size="sm" onClick={() => close(false)}>
-              {state?.cancelLabel ?? 'Cancel'}
-            </Button>
             <Button
               variant={state?.danger ? 'danger' : 'primary'}
               size="sm"
@@ -62,6 +59,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               }}
             >
               {state?.confirmLabel ?? 'Confirm'}
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => close(false)}>
+              {state?.cancelLabel ?? 'Cancel'}
             </Button>
           </>
         }

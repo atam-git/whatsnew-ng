@@ -2,10 +2,10 @@ import type { ContentCard } from '@/lib/api/types';
 import { formatDate } from './format';
 
 const PRICE_SYMBOL: Record<string, string> = {
-  BUDGET: '₦',
-  MODERATE: '₦₦',
-  UPSCALE: '₦₦₦',
-  LUXURY: '₦₦₦₦',
+  BUDGET: 'Budget',
+  MODERATE: 'Mid-range',
+  UPSCALE: 'Upscale',
+  LUXURY: 'Luxury',
 };
 
 function money(n?: number | null, currency = 'NGN') {

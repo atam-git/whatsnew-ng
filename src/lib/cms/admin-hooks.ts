@@ -3,7 +3,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Paginated } from '@/lib/api/types';
 import { cmsFetch } from './api';
-import { CONTENT_TYPE_KEYS } from './content-schema';
+import { CONTENT_TYPE_KEYS, CONTENT_TYPES } from './content-schema';
 
 // ── Dashboard: per-type counts ───────────────────────────────────────────────
 
@@ -36,17 +36,43 @@ export interface PickerContent {
   coverImage?: { url: string } | null;
 }
 
+const EMPTY_PAGE = { data: [] as PickerContent[], meta: { total: 0, page: 1, limit: 8, totalPages: 0 } };
+
+/** Recognises a category name typed into the search box ("hotel", "hotels",
+ *  "song", "Song / Album", ...) so the picker can list a whole category
+ *  instead of (or alongside) matching titles. */
+function matchCategoryKey(q: string): string | undefined {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return undefined;
+  return CONTENT_TYPE_KEYS.find((key) => {
+    const singular = key.endsWith('s') ? key.slice(0, -1) : key;
+    const label = CONTENT_TYPES[key].label.toLowerCase();
+    return key.startsWith(needle) || singular.startsWith(needle) || label.startsWith(needle);
+  });
+}
+
 export function useContentSearch(q: string, type?: string) {
+  const trimmed = q.trim();
+  const categoryKey = !type ? matchCategoryKey(trimmed) : undefined;
+
   return useQuery({
-    queryKey: ['content-search', type ?? 'all', q],
-    enabled: q.trim().length > 1,
+    queryKey: ['content-search', type ?? 'all', trimmed],
+    enabled: trimmed.length > 1,
     queryFn: async () => {
+      // Typed a category name ("hotels") - list that whole category rather
+      // than title-matching against it.
+      if (categoryKey) {
+        const page = await cmsFetch<Paginated<PickerContent>>(
+          `/${categoryKey}?limit=30&status=PUBLISHED`,
+        ).catch(() => EMPTY_PAGE);
+        return page.data;
+      }
       const types = type ? [type] : CONTENT_TYPE_KEYS;
       const pages = await Promise.all(
         types.map((t) =>
           cmsFetch<Paginated<PickerContent>>(
-            `/${t}?limit=8&q=${encodeURIComponent(q)}`,
-          ).catch(() => ({ data: [] as PickerContent[], meta: { total: 0, page: 1, limit: 8, totalPages: 0 } })),
+            `/${t}?limit=8&q=${encodeURIComponent(trimmed)}&status=PUBLISHED`,
+          ).catch(() => EMPTY_PAGE),
         ),
       );
       return pages.flatMap((p) => p.data).slice(0, 30);
@@ -95,49 +121,6 @@ export function useDeleteMedia() {
 }
 
 // ── Submissions ──────────────────────────────────────────────────────────────
-
-export interface ListingRow {
-  id: string;
-  contentType: string;
-  submitterName: string;
-  submitterEmail: string;
-  submitterPhone?: string | null;
-  status: string;
-  payload: Record<string, unknown>;
-  createdAt: string;
-  promotedContentId?: string | null;
-}
-
-export function useListingSubmissions(status?: string) {
-  return useQuery({
-    queryKey: ['listing-submissions', status ?? 'all'],
-    queryFn: () =>
-      cmsFetch<Paginated<ListingRow>>(
-        `/listing-submissions?limit=100${status ? `&status=${status}` : ''}`,
-      ),
-  });
-}
-
-export function usePromoteListing() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) =>
-      cmsFetch<{ contentId: string; type: string; slug: string }>(
-        `/listing-submissions/${id}/promote`,
-        { method: 'POST' },
-      ),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['listing-submissions'] }),
-  });
-}
-
-export function useRejectListing() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) =>
-      cmsFetch(`/listing-submissions/${id}/reject`, { method: 'POST' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['listing-submissions'] }),
-  });
-}
 
 export interface ContactRow {
   id: string;
@@ -330,7 +313,6 @@ export interface IssueRow {
   subject: string;
   previewText?: string | null;
   status: string;
-  cityId?: string | null;
   scheduledFor?: string | null;
   sentAt?: string | null;
   intro?: unknown;
@@ -392,13 +374,23 @@ export function useIssueAction() {
       body,
     }: {
       id: string;
-      action: 'autofill' | 'schedule' | 'send';
+      action: 'autofill' | 'schedule' | 'unschedule' | 'send';
       body?: Record<string, unknown>;
     }) => cmsFetch(`/newsletter/issues/${id}/${action}`, { method: 'POST', json: body }),
     onSuccess: (_r, v) => {
       qc.invalidateQueries({ queryKey: ['issues'] });
       qc.invalidateQueries({ queryKey: ['issues', 'item', v.id] });
     },
+  });
+}
+
+/** Manual trigger for the same weekly build the Wednesday cron runs: creates
+ *  a draft autofilled with everything published in the last 7 days. */
+export function useCreateWeeklyDraft() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => cmsFetch<IssueRow>('/newsletter/issues/weekly-draft', { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['issues'] }),
   });
 }
 
@@ -420,8 +412,8 @@ export function useSendTestIssue() {
   });
 }
 
-/** Same-origin URL for the rendered-email preview (open in a new tab). */
-export const issuePreviewUrl = (id: string) => `/api/v1/newsletter/issues/${id}/preview`;
+/** Full-page URL for the newsletter preview (opens in new tab with inbox preview). */
+export const issuePreviewUrl = (id: string) => `/cms/newsletter/${id}/preview`;
 
 // ── Newsletter schedule (weekly auto-draft) ──────────────────────────────────
 
@@ -518,11 +510,12 @@ export interface SubscriberRow {
   source?: string | null;
   subscribedAt: string;
   unsubscribedAt?: string | null;
-  city?: { id: string; name: string } | null;
 }
 
 export function useSubscribers(params: { status?: string; q?: string } = {}) {
-  const qs = new URLSearchParams({ limit: '200' });
+  // PaginationQueryDto caps `limit` at 100 server-side — anything higher fails
+  // validation with a 400, which silently blanked this whole list.
+  const qs = new URLSearchParams({ limit: '100' });
   if (params.status) qs.set('status', params.status);
   if (params.q) qs.set('q', params.q);
   return useQuery({
@@ -534,7 +527,7 @@ export function useSubscribers(params: { status?: string; q?: string } = {}) {
 export function useAddSubscriber() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { email: string; cityId?: string; source?: string }) =>
+    mutationFn: (data: { email: string; source?: string }) =>
       cmsFetch('/newsletter/subscribers', { method: 'POST', json: data }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['subscribers'] }),
   });
@@ -647,8 +640,8 @@ export function useSaveSiteSettings() {
 
 export interface DashboardData {
   content: {
-    byType: Record<string, { published: number; draft: number; archived: number }>;
-    totals: { published: number; draft: number; archived: number };
+    byType: Record<string, { published: number; draft: number; scheduled: number; archived: number }>;
+    totals: { published: number; draft: number; scheduled: number; archived: number };
     featured: number;
   };
   publishedPerWeek: { weekOf: string; count: number }[];
@@ -673,9 +666,8 @@ export interface DashboardData {
     active: number;
     unsubscribed: number;
     newThisWeek: number;
-    topStates: { state: string; count: number }[];
   };
-  queue: { pendingListings: number; newContacts: number };
+  queue: { newContacts: number };
   coverage: { statesWithContent: number; statesTotal: number };
   recentActivity: { id: string; action: string; entity: string; at: string; by: string }[];
 }

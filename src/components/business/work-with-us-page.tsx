@@ -14,13 +14,6 @@ const DEFAULTS = {
   lanesHeading: 'Ways to work together',
   lanes: [
     {
-      label: 'Submit a listing',
-      desc: 'Opened somewhere new, or running an event? Send it in. An editor reviews every submission - nothing goes live automatically.',
-      action: 'Submit a listing',
-      href: '/submit',
-      note: 'Free',
-    },
-    {
       label: 'Partnerships & advertising',
       desc: 'Sponsorships, newsletter placements and city guides with brands and organisers. Tell us what you have in mind and your timing.',
       action: 'Email partnerships@whatsnew.ng',
@@ -39,8 +32,8 @@ const DEFAULTS = {
   cta: {
     heading: 'Have something new?',
     body: 'Send it through and an editor will take a look.',
-    buttonLabel: 'Submit a listing',
-    href: '/submit',
+    buttonLabel: 'Get in touch',
+    href: '/contact',
   },
 };
 
@@ -158,7 +151,7 @@ export async function WorkWithUsPage() {
             )}
             {cta.buttonLabel && (
               <Link
-                href={cta.href || '/submit'}
+                href={cta.href || '/contact'}
                 className="text-brand-700 mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold transition hover:bg-brand-50"
               >
                 {cta.buttonLabel}

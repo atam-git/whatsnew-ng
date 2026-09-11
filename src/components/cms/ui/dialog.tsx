@@ -55,7 +55,7 @@ export function Dialog({
         )}
         {children && <div className="px-5 py-4">{children}</div>}
         {footer && (
-          <div className="border-line flex justify-end gap-2 border-t px-5 py-4">{footer}</div>
+          <div className="border-line flex items-center justify-between gap-2 border-t px-5 py-4">{footer}</div>
         )}
       </div>
     </div>,

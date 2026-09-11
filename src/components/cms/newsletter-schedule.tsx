@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CalendarClock } from 'lucide-react';
 import {
   useNewsletterSettings,
   useSaveNewsletterSettings,
+  useCreateWeeklyDraft,
   type NewsletterSettings,
 } from '@/lib/cms/admin-hooks';
 import { Card, Field, Input, Toggle, Button, useToast } from './ui';
@@ -33,9 +35,11 @@ function fmt(iso: string | null, timezone: string): string {
 }
 
 export function NewsletterSchedule() {
+  const router = useRouter();
   const toast = useToast();
   const { data } = useNewsletterSettings();
   const save = useSaveNewsletterSettings();
+  const createDraft = useCreateWeeklyDraft();
 
   const [form, setForm] = useState<{ cron: string; timezone: string; enabled: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -131,9 +135,26 @@ export function NewsletterSchedule() {
 
           {error && <p className="mt-3 text-[12px] text-[--color-danger-600]">{error}</p>}
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <Button size="sm" onClick={onSave} loading={save.isPending} disabled={!dirty}>
-              Save schedule
+              {form.enabled ? 'Save schedule' : 'Save'}
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              loading={createDraft.isPending}
+              onClick={async () => {
+                try {
+                  const draft = await createDraft.mutateAsync();
+                  toast('Draft created', 'success');
+                  router.push(`/cms/newsletter/${draft.id}`);
+                } catch (e) {
+                  toast(e instanceof Error ? e.message : 'Failed to create draft', 'error');
+                }
+              }}
+            >
+              <CalendarClock className="h-4 w-4" />
+              Create draft now
             </Button>
             <span className="text-muted text-[12px]">
               {data.enabled ? (

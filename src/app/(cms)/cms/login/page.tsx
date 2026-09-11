@@ -45,10 +45,10 @@ function LoginForm() {
         <Image
           src="/Whatsnew.ng.png"
           alt="Whatsnew.ng"
-          width={200}
-          height={60}
+          width={100}
+          height={30}
           priority
-          className="h-auto w-48"
+          className="h-auto w-30"
         />
       </div>
       <h1 className="text-center text-lg font-bold">Sign in to CMS</h1>

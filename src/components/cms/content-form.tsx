@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
+import { Star } from 'lucide-react';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 import { CONTENT_TYPES, type FieldKind } from '@/lib/cms/content-schema';
+import { APP_TIMEZONE, formatDateTime } from '@/lib/utils/format';
+import { isAutoThumbnailPlatform } from '@/lib/utils/card-thumbnail';
+import { useUnsavedChangesGuard } from './use-unsaved-changes-guard';
 import {
   useContentItem,
   useSaveContent,
@@ -13,8 +18,9 @@ import {
   useTags,
   useCreateTag,
   useSlugCheck,
+  useFeaturedContent,
 } from '@/lib/cms/hooks';
-import { PageHeader, Card, Button, Field, Input, Textarea, useToast, useConfirm } from './ui';
+import { PageHeader, Card, Button, Field, Input, Textarea, DateTimePicker, useToast, useConfirm } from './ui';
 import { StatusBadge } from './ui/status-badge';
 import { RichTextEditor } from './rich-text-editor-lazy';
 import { FieldRenderer } from './field-renderer';
@@ -50,8 +56,36 @@ const TYPE_ARTICLE: Record<string, string> = {
 };
 const a = (t?: string) => (t && TYPE_ARTICLE[t]) || 'another item';
 
-const toLocalInput = (iso?: string | null) => (iso ? new Date(iso).toISOString().slice(0, 16) : '');
-const toDateInput = (iso?: string | null) => (iso ? new Date(iso).toISOString().slice(0, 10) : '');
+// Native <input type="datetime-local"/"date"> always reads/writes device-local wall-clock
+// digits with no timezone info, so these must build the string from LOCAL getters (not
+// toISOString, which is UTC) - otherwise the round-trip through register()/toPayload
+// silently shifts the value by the device's UTC offset on every reload.
+const pad = (n: number) => String(n).padStart(2, '0');
+const toLocalInput = (iso?: string | null) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+const toDateInput = (iso?: string | null) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+// Suggested publish time (now + 1h, rounded up to the hour, in WAT) for when
+// none is set yet. Baked into toForm()'s output so it's part of the SAME
+// object used as both the form's current value and its dirty-comparison
+// baseline - a suggestion the user never picked must never register as a
+// change, only an actual edit should.
+function defaultPublishDate(): string {
+  const now = toZonedTime(new Date(), APP_TIMEZONE);
+  const rounded = new Date(now.getTime() + 60 * 60 * 1000);
+  if (rounded.getMinutes() !== 0 || rounded.getSeconds() !== 0) {
+    rounded.setHours(rounded.getHours() + 1);
+  }
+  rounded.setMinutes(0, 0, 0);
+  return fromZonedTime(rounded, APP_TIMEZONE).toISOString();
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toForm(type: string, item: any) {
@@ -64,7 +98,18 @@ function toForm(type: string, item: any) {
     excerpt: item?.excerpt ?? '',
     body: item?.body ?? null,
     featured: item?.featured ?? false,
-    publishDate: toLocalInput(item?.publishDate),
+    // DateTimePicker consumes/produces a real absolute ISO instant and does its own
+    // WAT conversion internally - pass it through raw, do not wall-clock-format it.
+    // Always the true publishDate column - a still-unpublished draft with a
+    // stale past value (e.g. left over from earlier testing) is treated as
+    // unset, so the calculated default kicks in instead. Once SCHEDULED it's
+    // real and never second-guessed. (PUBLISHED/ARCHIVED show publishedAt
+    // instead, read-only - see the sidebar JSX - this field is left alone so
+    // a generic save can never accidentally overwrite it with that.)
+    publishDate:
+      !item?.publishDate || (item?.status === 'DRAFT' && new Date(item.publishDate) <= new Date())
+        ? defaultPublishDate()
+        : item.publishDate,
     seoTitle: item?.seoTitle ?? '',
     seoDescription: item?.seoDescription ?? '',
     source: item?.source ?? '',
@@ -81,11 +126,13 @@ function toForm(type: string, item: any) {
   for (const f of cfg.groups.flatMap((g) => g.fields)) {
     const v = detail[f.key];
     out[f.key] =
-      f.kind === 'datetime'
-        ? toLocalInput(v)
-        : f.kind === 'date'
-          ? toDateInput(v)
-          : f.kind === 'stringList'
+      (f.kind === 'datetime' || f.kind === 'date') && f.blockPast
+        ? (v ?? '') // DateTimePicker field - raw ISO instant, converted to WAT internally
+        : f.kind === 'datetime'
+          ? toLocalInput(v)
+          : f.kind === 'date'
+            ? toDateInput(v)
+            : f.kind === 'stringList'
             ? (v ?? [])
             : f.kind === 'keyValue'
               ? (v ?? {})
@@ -117,8 +164,14 @@ function toPayload(type: string, values: Record<string, any>, isEdit: boolean) {
       else if (isEdit) p[k] = null;
       continue;
     }
-    if (v === '' || v === null || v === undefined || (typeof v === 'number' && Number.isNaN(v)))
+    const isEmpty = v === '' || v === null || v === undefined || (typeof v === 'number' && Number.isNaN(v));
+    if (isEmpty) {
+      // On create, just omit unset optional fields. On edit, send an explicit
+      // null - otherwise a PATCH that drops a key means "leave it alone" to
+      // Prisma, so clearing a previously-set field would silently do nothing.
+      if (isEdit) p[k] = null;
       continue;
+    }
     const kind = kinds[k];
     if ((kind === 'datetime' || kind === 'date' || kind === 'baseDatetime') && v) {
       p[k] = new Date(v).toISOString();
@@ -152,7 +205,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
     reset,
     watch,
     setValue,
-    formState: { isDirty },
+    formState: { isDirty, dirtyFields },
   } = useForm({ defaultValues: toForm(type, null) });
 
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -160,7 +213,48 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
   const status: ContentStatus = item?.status ?? 'DRAFT';
 
   const slugValue = (watch('slug') as string) ?? '';
+  const publishDateValue = watch('publishDate') as string | null;
+
+  // "Must be in the future" only means something before something is actually
+  // live - once PUBLISHED/ARCHIVED, its publish date is real history and a
+  // past date there is correct, not an error.
+  const publishDateError = publishDateValue && status !== 'PUBLISHED' && status !== 'ARCHIVED' ? (() => {
+    const selectedDate = toZonedTime(new Date(publishDateValue), APP_TIMEZONE);
+    const now = toZonedTime(new Date(), APP_TIMEZONE);
+    return selectedDate <= now ? 'Publish date must be in the future' : undefined;
+  })() : undefined;
   const slug = useSlugCheck(type, slugValue, effectiveId ?? undefined);
+  const featuredCheck = useFeaturedContent(effectiveId ?? undefined);
+  const isFeatured = watch('featured') as boolean;
+  
+  // Watch source fields for conditional validation
+  const sourceValue = watch('source') as string;
+  const sourceUrlValue = watch('sourceUrl') as string;
+  const externalUrlValue = watch('externalUrl') as string;
+  
+  // URL validation helper
+  const isValidUrl = (url: string): boolean => {
+    if (!url || !url.trim()) return true; // Empty is valid (optional field)
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+  
+  // Compute validation errors for source fields (only for READ type)
+  const sourceError = type === 'reads' && sourceValue && !sourceUrlValue 
+    ? 'Source URL is required when crediting a source'
+    : undefined;
+  const sourceUrlError = type === 'reads' && sourceUrlValue && !sourceValue
+    ? 'Source name is required when providing a URL'
+    : !isValidUrl(sourceUrlValue)
+    ? 'Enter a valid URL (e.g., https://example.com)'
+    : undefined;
+  const externalUrlError = externalUrlValue && !isValidUrl(externalUrlValue)
+    ? 'Enter a valid URL (e.g., https://example.com)'
+    : undefined;
 
   // ── CSV import (create only) ────────────────────────────────────────────
   // A queue of rows from a multi-row CSV. Each is filled into the form, the
@@ -171,6 +265,9 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
 
   const applyRow = (values: Record<string, unknown>) => {
     for (const [k, v] of Object.entries(values)) {
+      // A blank CSV cell means "leave this field at whatever the fresh form
+      // already has" (e.g. the computed default publish date) - not "clear it".
+      if (v === '') continue;
       setValue(k as never, v as never, { shouldDirty: true });
     }
   };
@@ -208,22 +305,262 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
   const isLastPending = inQueue && nextPending(qi) === -1;
 
   useEffect(() => {
-    if (item) reset(toForm(type, item));
+    if (item) reset(toForm(type, item), { keepDefaultValues: false });
   }, [item, type, reset]);
 
-  useEffect(() => {
-    const h = (e: BeforeUnloadEvent) => {
-      if (isDirty) e.preventDefault();
-    };
-    window.addEventListener('beforeunload', h);
-    return () => window.removeEventListener('beforeunload', h);
-  }, [isDirty]);
+  // Warn before leaving (tab close/refresh, browser Back, in-app link clicks)
+  // while the form has unsaved changes.
+  useUnsavedChangesGuard(isDirty);
 
   const onSubmit = handleSubmit(async (values) => {
     if (!values.cityIds?.length) {
       toast('Pick at least one state under Organise.', 'error');
       return;
     }
+
+    // Validation for READ content type
+    if (type === 'reads') {
+      if (!values.excerpt) {
+        toast('Excerpt is required for articles.', 'error');
+        return;
+      }
+      if (!values.coverImageId) {
+        toast('Cover image is required for articles.', 'error');
+        return;
+      }
+      // If source is provided, sourceUrl is required (legal attribution)
+      if (values.source && !values.sourceUrl) {
+        toast('Source URL is required when crediting a source.', 'error');
+        return;
+      }
+      // If sourceUrl is provided, source name is required
+      if (values.sourceUrl && !values.source) {
+        toast('Source name is required when providing a source URL.', 'error');
+        return;
+      }
+    }
+
+    // Validation for HOTEL content type
+    if (type === 'hotels') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for hotels.', 'error');
+        return;
+      }
+      if (!values.address) {
+        toast('Address is required for hotels.', 'error');
+        return;
+      }
+      if (!values.neighbourhood) {
+        toast('Neighbourhood is required for hotels.', 'error');
+        return;
+      }
+      if (!values.phone) {
+        toast('Phone number is required for hotels.', 'error');
+        return;
+      }
+      if (!values.priceRange) {
+        toast('Price range is required for hotels.', 'error');
+        return;
+      }
+    }
+
+    // Validation for RESTAURANT content type
+    if (type === 'restaurants') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for restaurants.', 'error');
+        return;
+      }
+      if (!values.address) {
+        toast('Address is required for restaurants.', 'error');
+        return;
+      }
+      if (!values.neighbourhood) {
+        toast('Neighbourhood is required for restaurants.', 'error');
+        return;
+      }
+      if (!values.phone) {
+        toast('Phone number is required for restaurants.', 'error');
+        return;
+      }
+      if (!values.priceRange) {
+        toast('Price range is required for restaurants.', 'error');
+        return;
+      }
+      if (!values.cuisines || (values.cuisines as string[]).length === 0) {
+        toast('At least one cuisine type is required for restaurants.', 'error');
+        return;
+      }
+    }
+
+    // Validation for EVENT content type
+    if (type === 'events') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for events.', 'error');
+        return;
+      }
+      if (!values.startDateTime) {
+        toast('Start date and time is required for events.', 'error');
+        return;
+      }
+      if (!values.venueName) {
+        toast('Venue name is required for events.', 'error');
+        return;
+      }
+      if (!values.address) {
+        toast('Address is required for events.', 'error');
+        return;
+      }
+      if (!values.neighbourhood) {
+        toast('Neighbourhood is required for events.', 'error');
+        return;
+      }
+    }
+
+    // Validation for SONG content type
+    if (type === 'songs') {
+      if (!values.artist) {
+        toast('Artist name is required for songs.', 'error');
+        return;
+      }
+      if (!values.genre || (values.genre as string[]).length === 0) {
+        toast('At least one genre is required for songs.', 'error');
+        return;
+      }
+      // At least one streaming link required
+      const hasStreamingLink =
+        values.spotifyUrl || values.appleMusicUrl || values.youtubeMusicUrl || values.audiomackUrl;
+      if (!hasStreamingLink) {
+        toast('At least one streaming link is required (Spotify, Apple Music, YouTube Music, or Audiomack).', 'error');
+        return;
+      }
+    }
+
+    // Validation for VIDEO content type
+    if (type === 'videos') {
+      if (!values.videoUrl) {
+        toast('Video URL is required for videos.', 'error');
+        return;
+      }
+      // YouTube/Vimeo links get a thumbnail derived automatically - a cover
+      // upload is only required when we can't do that for the given link.
+      if (!values.coverImageId && !isAutoThumbnailPlatform(values.videoUrl as string)) {
+        toast('Cover image is required unless the video link is YouTube or Vimeo.', 'error');
+        return;
+      }
+      if (!values.creatorName) {
+        toast('Creator name is required for videos.', 'error');
+        return;
+      }
+      if (!values.topics || (values.topics as string[]).length === 0) {
+        toast('At least one topic is required for videos.', 'error');
+        return;
+      }
+    }
+
+    // Validation for STARTUP content type
+    if (type === 'startups') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for startups.', 'error');
+        return;
+      }
+      if (!values.tagline) {
+        toast('Tagline is required for startups.', 'error');
+        return;
+      }
+      if (!values.sector || (values.sector as string[]).length === 0) {
+        toast('At least one sector is required for startups.', 'error');
+        return;
+      }
+      if (!values.stage) {
+        toast('Stage is required for startups.', 'error');
+        return;
+      }
+      if (!values.startupStatus) {
+        toast('Status is required for startups.', 'error');
+        return;
+      }
+      if (!values.foundedYear) {
+        toast('Founded year is required for startups.', 'error');
+        return;
+      }
+      if (!values.website) {
+        toast('Website is required for startups.', 'error');
+        return;
+      }
+    }
+
+    // Validation for BUSINESS content type
+    if (type === 'businesses') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for new businesses.', 'error');
+        return;
+      }
+      if (!values.tagline) {
+        toast('Tagline is required for new businesses.', 'error');
+        return;
+      }
+      if (!values.neighbourhood) {
+        toast('Neighbourhood is required for new businesses.', 'error');
+        return;
+      }
+      if (!values.phone) {
+        toast('Phone is required for new businesses.', 'error');
+        return;
+      }
+    }
+
+    // Validation for CHURCH (faith event) content type
+    if (type === 'churches') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for faith events.', 'error');
+        return;
+      }
+      if (!values.hostOrSpeaker) {
+        toast('Host / speaker is required for faith events.', 'error');
+        return;
+      }
+      if (!values.eventDate) {
+        toast('Event date is required for faith events.', 'error');
+        return;
+      }
+      if (!values.venueName) {
+        toast('Venue is required for faith events.', 'error');
+        return;
+      }
+      if (!values.neighbourhood) {
+        toast('Neighbourhood is required for faith events.', 'error');
+        return;
+      }
+      if (!values.address) {
+        toast('Address is required for faith events.', 'error');
+        return;
+      }
+    }
+
+    // Validation for OPPORTUNITY content type
+    if (type === 'opportunities') {
+      if (!values.coverImageId) {
+        toast('Cover image is required for opportunities.', 'error');
+        return;
+      }
+      if (!values.opportunityType) {
+        toast('Type is required for opportunities.', 'error');
+        return;
+      }
+      if (!values.organiser) {
+        toast('Organiser is required for opportunities.', 'error');
+        return;
+      }
+      if (!values.deadline) {
+        toast('Deadline is required for opportunities.', 'error');
+        return;
+      }
+      if (!values.applyUrl) {
+        toast('Apply URL is required for opportunities.', 'error');
+        return;
+      }
+    }
+
     // auto-slug from title if blank
     if (!values.slug && values.title) {
       values.slug = values.title
@@ -260,7 +597,11 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
       toast(isNew && !savedId ? `${cfg.label} created` : 'Saved', 'success');
       if (res?.id && !effectiveId) {
         setSavedId(res.id);
-        router.replace(`/cms/content/${type}/${res.id}`);
+        // Redirect to content list after creating new item
+        router.push(`/cms/content/${type}`);
+      } else {
+        // Redirect to content list after updating existing item
+        router.push(`/cms/content/${type}`);
       }
       reset(values);
     } catch (e) {
@@ -273,13 +614,39 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
       toast('Save the draft first', 'info');
       return;
     }
+    
+    // Prevent scheduling with past dates/times
+    if (next === 'SCHEDULED') {
+      const publishDate = watch('publishDate') as string | null;
+      if (!publishDate) {
+        toast('Set a publish date before scheduling', 'error');
+        return;
+      }
+      const publishDateTime = toZonedTime(new Date(publishDate), APP_TIMEZONE);
+      const now = toZonedTime(new Date(), APP_TIMEZONE);
+      if (publishDateTime <= now) {
+        toast('Cannot schedule content for the past. Choose a future date and time', 'error');
+        return;
+      }
+      // The publish date only lives in form state until the form is saved - the
+      // status-change request below doesn't send it, so the backend would otherwise
+      // check its OLD stored publishDate (often null/stale) and reject the schedule
+      // even though the date on screen is valid. Persist it first.
+      try {
+        await save.mutateAsync({ id: effectiveId, data: { publishDate: new Date(publishDate).toISOString() } });
+      } catch (e) {
+        toast(e instanceof Error ? e.message : 'Failed to save publish date', 'error');
+        return;
+      }
+    }
+
     if (confirmMsg) {
       const ok = await confirm({ title: confirmMsg, danger: next === 'ARCHIVED' });
       if (!ok) return;
     }
     try {
       await setStatus.mutateAsync({ id: effectiveId, status: next });
-      toast(`Moved to ${next.toLowerCase()}`, 'success');
+      toast(next === status && next === 'SCHEDULED' ? 'Rescheduled' : `Moved to ${next.toLowerCase()}`, 'success');
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Failed', 'error');
     }
@@ -381,11 +748,12 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
         <div className="min-w-0 space-y-6">
           <Card title="Basics">
             <div className="space-y-4">
-              <Field label="Title" required htmlFor="title">
+              <Field label="Title" required htmlFor="title" tooltip="The main headline that appears everywhere">
                 <Input id="title" {...register('title', { required: true })} placeholder="Headline" />
               </Field>
               <Field
                 label="Slug"
+                tooltip="URL-friendly version of the title. Auto-generated if left blank."
                 hint={
                   slugValue.trim()
                     ? undefined
@@ -398,12 +766,12 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                     {slug.pending || slug.checking ? (
                       <span className="text-muted">Checking availability…</span>
                     ) : slug.data?.available ? (
-                      <span className="text-[--color-success-600]">
+                      <span className="text-emerald-600 font-medium">
                         “{slug.data.slug}” is available
                       </span>
                     ) : slug.data ? (
-                      <span className="text-[--color-warning-600]">
-                        Taken by {a(slug.data.takenBy?.type)}
+                      <span className="text-red-600">
+                        ✗ Taken by {a(slug.data.takenBy?.type)}
                         {slug.data.takenBy?.title ? ` (“${slug.data.takenBy.title}”)` : ''}. Saving now
                         would use “{slug.data.suggestion}”.{' '}
                         <button
@@ -420,10 +788,10 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                   </p>
                 )}
               </Field>
-              <Field label="Excerpt" hint="One line shown as the dek and on cards.">
-                <Textarea {...register('excerpt')} rows={2} />
+              <Field label="Excerpt" required tooltip="One-sentence summary shown on cards and below headlines">
+                <Textarea {...register('excerpt')} rows={2} placeholder="Brief description" />
               </Field>
-              <Field label="Body">
+              <Field label="Body" tooltip="The full article content with rich text formatting">
                 <Controller
                   control={control}
                   name="body"
@@ -439,7 +807,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
             <Card key={group.title} title={group.title}>
               <div className="grid gap-4 sm:grid-cols-2">
                 {group.fields.map((f) => (
-                  <FieldRenderer key={f.key} def={f} control={control} register={register} />
+                  <FieldRenderer key={f.key} def={f} control={control} register={register} watch={watch} />
                 ))}
               </div>
             </Card>
@@ -447,36 +815,56 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
 
           <Card title="Media">
             <div className="space-y-5">
-              <Controller
-                control={control}
-                name="_cover"
-                render={({ field }) => (
-                  <MediaField
-                    value={field.value}
-                    onChange={(m) => {
-                      field.onChange(m);
-                      setValue('coverImageId', m?.id ?? null, { shouldDirty: true });
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="_gallery"
-                render={({ field }) => (
-                  <GalleryField
-                    value={field.value ?? []}
-                    onChange={(list) => {
-                      field.onChange(list);
-                      setValue(
-                        'galleryMediaIds',
-                        list.map((m) => m.id),
-                        { shouldDirty: true },
-                      );
-                    }}
-                  />
-                )}
-              />
+              <div>
+                <p className="text-muted mb-3 text-xs">
+                  <strong className="text-ink">Cover:</strong> Main image shown on cards and at the top of detail pages
+                  {type === 'songs' && (
+                    <span className="text-muted-600 block mt-1">
+                      For music: album art from streaming links (Spotify, Apple Music, Audiomack, YouTube Music) will be used automatically. Upload an image here to override it.
+                    </span>
+                  )}
+                  {(type === 'reads' || type === 'hotels' || type === 'restaurants' || type === 'events' || 
+                    type === 'videos' || type === 'startups' || type === 'businesses' || type === 'churches' || 
+                    type === 'opportunities') && (
+                    <span className="text-red-600 font-semibold"> (Required)</span>
+                  )}
+                </p>
+                <Controller
+                  control={control}
+                  name="_cover"
+                  render={({ field }) => (
+                    <MediaField
+                      value={field.value}
+                      onChange={(m) => {
+                        field.onChange(m);
+                        setValue('coverImageId', m?.id ?? null, { shouldDirty: true });
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <p className="text-muted mb-3 text-xs">
+                  <strong className="text-ink">Gallery:</strong> Additional images shown in a carousel on detail pages
+                </p>
+                <Controller
+                  control={control}
+                  name="_gallery"
+                  render={({ field }) => (
+                    <GalleryField
+                      value={field.value ?? []}
+                      onChange={(list) => {
+                        field.onChange(list);
+                        setValue(
+                          'galleryMediaIds',
+                          list.map((m) => m.id),
+                          { shouldDirty: true },
+                        );
+                      }}
+                    />
+                  )}
+                />
+              </div>
             </div>
           </Card>
         </div>
@@ -489,47 +877,59 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                 <span className="text-muted text-[13px]">Status</span>
                 <StatusBadge status={status} />
               </div>
-              <Field label="Publish date">
-                <Input type="datetime-local" {...register('publishDate')} />
-              </Field>
+              {status === 'PUBLISHED' || status === 'ARCHIVED' ? (
+                <Field label="Publish date" tooltip="When this actually went live. Unpublish to change it.">
+                  <div className="border-line bg-canvas text-ink flex h-9 w-full items-center rounded-md border px-3 text-[13px]">
+                    {formatDateTime(item?.publishedAt ?? item?.publishDate) || '—'}
+                  </div>
+                </Field>
+              ) : (
+                <Field label="Publish date" tooltip="When this goes live. Leave empty to publish immediately" error={publishDateError}>
+                  <Controller
+                    control={control}
+                    name="publishDate"
+                    render={({ field }) => (
+                      <DateTimePicker
+                        value={field.value as string | null}
+                        onChange={field.onChange}
+                        invalid={!!publishDateError}
+                      />
+                    )}
+                  />
+                </Field>
+              )}
               <div className="flex flex-col gap-2 pt-1">
-                {status !== 'PUBLISHED' && (
+                {status !== 'PUBLISHED' && status !== 'SCHEDULED' && (
                   <Button type="button" size="sm" onClick={() => changeStatus('PUBLISHED')} loading={setStatus.isPending}>
                     Publish now
                   </Button>
                 )}
-                {status === 'PUBLISHED' && (
-                  <Button type="button" size="sm" variant="secondary" onClick={() => changeStatus('DRAFT', 'Unpublish this item?')}>
-                    Unpublish
+                {status !== 'PUBLISHED' && status !== 'SCHEDULED' && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => changeStatus('SCHEDULED')}
+                    loading={setStatus.isPending}
+                    disabled={!!publishDateError || !publishDateValue}
+                  >
+                    Schedule
                   </Button>
                 )}
-                {status !== 'ARCHIVED' && (
-                  <Button type="button" size="sm" variant="secondary" onClick={() => changeStatus('ARCHIVED', 'Archive this item?')}>
-                    Archive
+                {status === 'SCHEDULED' && dirtyFields.publishDate && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => changeStatus('SCHEDULED')}
+                    loading={setStatus.isPending}
+                    disabled={!!publishDateError || !publishDateValue}
+                  >
+                    Reschedule
                   </Button>
                 )}
-                {status === 'ARCHIVED' && (
+                {status === 'SCHEDULED' && (
                   <Button type="button" size="sm" variant="secondary" onClick={() => changeStatus('DRAFT')}>
-                    Restore to draft
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Organise">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-muted text-[13px]">Status</span>
-                <StatusBadge status={status} />
-              </div>
-              <Field label="Publish date">
-                <Input type="datetime-local" {...register('publishDate')} />
-              </Field>
-              <div className="flex flex-col gap-2 pt-1">
-                {status !== 'PUBLISHED' && (
-                  <Button type="button" size="sm" onClick={() => changeStatus('PUBLISHED')} loading={setStatus.isPending}>
-                    Publish now
+                    Cancel schedule
                   </Button>
                 )}
                 {status === 'PUBLISHED' && (
@@ -556,7 +956,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
               <Field
                 label="State"
                 required
-                hint="Pick one or more states. Use “Nationwide” for online / countrywide items."
+                tooltip="Pick one or more states. Use 'Nationwide' for online/countrywide items"
               >
                 <Controller
                   control={control}
@@ -571,7 +971,7 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                   )}
                 />
               </Field>
-              <Field label="Tags">
+              <Field label="Tags" tooltip="Topic labels like 'Must read', 'Fintech', etc. Create new ones as you type">
                 <Controller
                   control={control}
                   name="tagIds"
@@ -590,28 +990,65 @@ export function ContentForm({ type, id }: { type: string; id: string }) {
                   )}
                 />
               </Field>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" {...register('featured')} /> Featured
-              </label>
-              <Field label="Source / attribution">
-                <Input {...register('source')} placeholder="Connect Nigeria" />
+              
+              {/* Featured toggle */}
+              <div className="space-y-2 rounded-lg border-2 border-amber-200 bg-amber-50 p-3">
+                <label className="flex cursor-pointer items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    {...register('featured')}
+                    disabled={!isFeatured && !!featuredCheck.data}
+                    className="h-4 w-4 accent-amber-600"
+                  />
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-4 w-4 text-amber-600" fill="currentColor" />
+                    <span className="font-semibold text-amber-900">Featured article</span>
+                  </div>
+                </label>
+                {!isFeatured && featuredCheck.data && (
+                  <p className="text-xs text-amber-700">
+                    Another article is already featured:{' '}
+                    <span className="font-medium">{featuredCheck.data.title}</span>
+                  </p>
+                )}
+                {isFeatured && (
+                  <p className="text-xs text-amber-700">
+                    This article will appear as the hero on the homepage
+                  </p>
+                )}
+              </div>
+
+              <Field 
+                label="Source / attribution" 
+                tooltip="Credit another publication if you're republishing their content. If filled, Source URL becomes required for legal attribution"
+                error={sourceError}
+              >
+                <Input {...register('source')} placeholder="Connect Nigeria" invalid={!!sourceError} />
               </Field>
-              <Field label="Source URL">
-                <Input {...register('sourceUrl')} placeholder="https://…" />
+              <Field 
+                label="Source URL" 
+                tooltip="Link to the source's website. Required if Source is filled to provide proper legal attribution"
+                error={sourceUrlError}
+              >
+                <Input {...register('sourceUrl')} placeholder="https://…" invalid={!!sourceUrlError} />
               </Field>
-              <Field label="External URL" hint="The item's own outbound link.">
-                <Input {...register('externalUrl')} placeholder="https://…" />
+              <Field 
+                label="External URL" 
+                tooltip="The item's official link: event tickets, restaurant website, or original article URL"
+                error={externalUrlError}
+              >
+                <Input {...register('externalUrl')} placeholder="https://…" invalid={!!externalUrlError} />
               </Field>
             </div>
           </Card>
 
           <Card title="SEO">
             <div className="space-y-4">
-              <Field label="SEO title">
-                <Input {...register('seoTitle')} />
+              <Field label="SEO title" tooltip="Custom title for search engines. Defaults to article title if empty">
+                <Input {...register('seoTitle')} placeholder="Leave empty to use article title" />
               </Field>
-              <Field label="SEO description">
-                <Textarea {...register('seoDescription')} rows={2} />
+              <Field label="SEO description" tooltip="Summary for Google search results. Defaults to excerpt if empty">
+                <Textarea {...register('seoDescription')} rows={2} placeholder="Leave empty to use excerpt" />
               </Field>
             </div>
           </Card>

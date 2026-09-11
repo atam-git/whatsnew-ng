@@ -18,7 +18,7 @@ export type ContentType =
   | 'OPPORTUNITY'
   | 'READ';
 
-export type ContentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type ContentStatus = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED';
 
 export interface Ref {
   id: string;
@@ -62,8 +62,22 @@ export interface CardDetails {
     priceFrom?: number | null;
     currency?: string | null;
   } | null;
-  song?: { artist?: string | null; genre?: string[]; isAlbum?: boolean } | null;
-  video?: { creatorName?: string | null; durationSeconds?: number | null } | null;
+  song?: {
+    artist?: string | null;
+    genre?: string[];
+    isAlbum?: boolean;
+    youtubeUrl?: string | null;
+    youtubeMusicUrl?: string | null;
+    previewThumbnailUrl?: string | null;
+  } | null;
+  video?: {
+    creatorName?: string | null;
+    durationSeconds?: number | null;
+    videoId?: string | null;
+    videoUrl?: string | null;
+    previewThumbnailUrl?: string | null;
+    platform?: string | null;
+  } | null;
   startup?: {
     sector?: string[];
     stage?: string | null;
@@ -126,3 +140,29 @@ export interface SessionUser {
   email: string;
   role: 'SUPER_ADMIN' | 'EDITOR' | 'CONTRIBUTOR';
 }
+
+// ── Ads ──────────────────────────────────────────────────────────────────────
+
+export type AdPlacement =
+  | 'leaderboard_1296x365'
+  | 'leaderboard_1024x512'
+  | 'leaderboard_390x964'
+  | 'mobile_343x180'
+  | 'tower_224x480'; // May not be available in API
+
+export interface Ad {
+  campaign_id: string;
+  campaign_group_id: string;
+  banner_id: number;
+  image_url: string;
+  click_url: string;
+  impression_url: string;
+  target_url: string;
+  coverage_type: string;
+  target_states: string[];
+}
+
+export interface AdBannersResponse {
+  [key: string]: Ad[];
+}
+

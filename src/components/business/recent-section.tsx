@@ -2,8 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { HomepageShelf } from '@/lib/api/types';
 import { CONTENT_PATHS } from '@/lib/api/content';
-import { CoverFallback } from './cover-fallback';
+import { CoverFallback, PlayBadge } from './cover-fallback';
 import { ShelfHeading } from './shelf';
+import { streamingThumbnail } from '@/lib/utils/card-thumbnail';
 
 /**
  * "Most Recent": a balanced 50/50 split - one large lead card on the left with
@@ -15,6 +16,7 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
   const [lead, ...rest] = shelf.items;
   const list = rest.slice(0, 4);
   const leadHref = `/${CONTENT_PATHS[lead.type]}/${lead.slug}`;
+  const leadCover = lead.coverImage?.url || streamingThumbnail(lead);
 
   const TYPE_LABELS: Record<string, string> = {
     RESTAURANT: 'Restaurant',
@@ -41,10 +43,10 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
           className="group relative min-h-[360px] overflow-hidden rounded-2xl lg:col-span-3"
         >
           <div className="bg-ink absolute inset-0">
-            {lead.coverImage?.url ? (
+            {leadCover ? (
               <Image
-                src={lead.coverImage.url}
-                alt={lead.coverImage.alt ?? lead.title}
+                src={leadCover}
+                alt={lead.coverImage?.alt ?? lead.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 60vw"
                 className="object-cover transition duration-300 group-hover:scale-105"
@@ -53,6 +55,7 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
             ) : (
               <CoverFallback />
             )}
+            {(lead.type === 'VIDEO' || lead.type === 'SONG') && <PlayBadge />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
           </div>
           <div className="relative flex h-full flex-col justify-end p-6">
@@ -79,9 +82,9 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
                 className="hover:bg-canvas group flex h-full items-center gap-4 p-4 transition"
               >
                 <div className="bg-canvas relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-lg">
-                  {item.coverImage?.url ? (
+                  {item.coverImage?.url || streamingThumbnail(item) ? (
                     <Image
-                      src={item.coverImage.url}
+                      src={(item.coverImage?.url || streamingThumbnail(item)) as string}
                       alt=""
                       fill
                       sizes="112px"
@@ -90,6 +93,7 @@ export function RecentSection({ shelf, viewAllHref }: { shelf: HomepageShelf; vi
                   ) : (
                     <CoverFallback className="[&_img]:h-5 sm:[&_img]:h-6" />
                   )}
+                  {(item.type === 'VIDEO' || item.type === 'SONG') && <PlayBadge compact />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-muted text-[12px] font-semibold uppercase tracking-wide">

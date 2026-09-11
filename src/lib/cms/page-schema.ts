@@ -56,6 +56,8 @@ export const PAGE_SCHEMAS: Record<string, PageSection[]> = {
     {
       title: 'What we cover',
       fields: [
+        { key: 'coverHeading', label: 'Heading', kind: 'text' },
+        { key: 'coverIntro', label: 'Intro', kind: 'textarea' },
         {
           key: 'coverItems',
           label: 'Cards',
@@ -123,7 +125,7 @@ export const PAGE_SCHEMAS: Record<string, PageSection[]> = {
             { key: 'label', label: 'Label', kind: 'text' },
             { key: 'desc', label: 'Description', kind: 'textarea' },
             { key: 'action', label: 'Action text', kind: 'text' },
-            { key: 'href', label: 'Link', kind: 'text', placeholder: '/submit or mailto:…' },
+            { key: 'href', label: 'Link', kind: 'text', placeholder: '/contact or mailto:…' },
             { key: 'note', label: 'Badge (optional)', kind: 'text', placeholder: 'Free' },
           ],
         },

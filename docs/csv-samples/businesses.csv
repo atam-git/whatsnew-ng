@@ -1,4 +1,4 @@
-title (required),excerpt,publishDate,externalUrl,tagline,sector,neighbourhood,website,instagramUrl,foundedYear,hqCity,phone,email
-Ripe,A grocery and deli opens in Yaba.,2026-09-04,https://ripe.ng,Fresh produce and imported pantry goods,Grocery; Retail,Yaba,https://ripe.ng,https://instagram.com/ripe.ng,2026,Lagos,+234 803 000 0000,hello@ripe.ng
-Ovie Studios,A photography and podcast studio for hire.,2026-09-06,,Hourly studio space for creators,Creative; Media,GRA Phase 2,,https://instagram.com/oviestudios,2026,Port Harcourt,,book@oviestudios.ng
-The Repair Bar,Walk-in electronics and phone repair.,2026-09-08,,Same-day device repair with a warranty,Retail; Services,Wuse 2,,https://instagram.com/therepairbar,2026,Abuja,+234 807 111 0000,
+title (required),excerpt,publishDate,externalUrl,tagline,sector,industry,foundedYear,hqCity,neighbourhood,phone,email,mapUrl,website,instagramUrl,twitterUrl
+Ripe,A grocery and deli opens in Yaba.,2026-09-04,https://ripe.ng,Fresh produce and imported pantry goods,Grocery; Retail,Grocery retail,2026,Lagos,Yaba,+234 803 000 0000,hello@ripe.ng,https://maps.google.com/?q=Ripe+Yaba,https://ripe.ng,https://instagram.com/ripe.ng,
+Ovie Studios,A photography and podcast studio for hire.,2026-09-06,,Hourly studio space for creators,Creative; Media,Creative services,2026,Port Harcourt,GRA Phase 2,,book@oviestudios.ng,,,https://instagram.com/oviestudios,https://twitter.com/oviestudios
+The Repair Bar,Walk-in electronics and phone repair.,2026-09-08,,Same-day device repair with a warranty,Retail; Services,Electronics repair,2026,Abuja,Wuse 2,+234 807 111 0000,,https://maps.google.com/?q=The+Repair+Bar+Wuse2,,https://instagram.com/therepairbar,

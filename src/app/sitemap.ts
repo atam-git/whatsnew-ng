@@ -10,7 +10,6 @@ const STATIC_PATHS = [
   'terms',
   'work-with-us',
   'contact',
-  'submit',
   'subscribe',
 ];
 

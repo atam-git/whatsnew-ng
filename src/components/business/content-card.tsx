@@ -5,7 +5,8 @@ import { CONTENT_PATHS } from '@/lib/api/content';
 import { formatDate } from '@/lib/utils/format';
 import { cardMeta } from '@/lib/utils/card-meta';
 import { CardMetaRow } from './card-meta';
-import { CoverFallback } from './cover-fallback';
+import { CoverFallback, PlayBadge } from './cover-fallback';
+import { streamingThumbnail } from '@/lib/utils/card-thumbnail';
 
 // Accent colour for the eyebrow label, per content type.
 const TYPE_COLORS: Record<string, string> = {
@@ -43,6 +44,9 @@ export function ContentCard({ item }: { item: Card }) {
   const eyebrowHref = `/${CONTENT_PATHS[item.type]}`;
   const eyebrowColor = TYPE_COLORS[item.type] || 'text-muted';
   const meta = cardMeta(item);
+  
+  // Get cover image URL (uploaded image or streaming service thumbnail)
+  const coverImageUrl = item.coverImage?.url || streamingThumbnail(item);
 
   return (
     <article className="group relative transition-transform duration-300 hover:-translate-y-1">
@@ -52,10 +56,10 @@ export function ContentCard({ item }: { item: Card }) {
         tabIndex={-1}
         className="bg-canvas relative block aspect-[4/3] overflow-hidden rounded-xl shadow-sm transition-shadow duration-300 group-hover:shadow-md"
       >
-        {item.coverImage?.url ? (
+        {coverImageUrl ? (
           <Image
-            src={item.coverImage.url}
-            alt={item.coverImage.alt ?? item.title}
+            src={coverImageUrl}
+            alt={item.coverImage?.alt ?? item.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -63,6 +67,7 @@ export function ContentCard({ item }: { item: Card }) {
         ) : (
           <CoverFallback />
         )}
+        {(item.type === 'VIDEO' || item.type === 'SONG') && <PlayBadge />}
       </Link>
 
       <div className="mt-3">

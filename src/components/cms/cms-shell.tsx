@@ -94,7 +94,28 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4">
+    <nav 
+      className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-4"
+      style={{
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#d1d5db transparent',
+      }}
+    >
+      <style jsx>{`
+        nav::-webkit-scrollbar {
+          width: 6px;
+        }
+        nav::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        nav::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+        nav::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+      `}</style>
       <NavLink href="/cms" label="Dashboard" icon={LayoutDashboard} active={pathname === '/cms'} onNavigate={() => setOpen(false)} />
       <div>
         <p className="text-muted px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wide">

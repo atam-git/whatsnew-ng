@@ -1,4 +1,4 @@
-title (required),excerpt,publishDate,videoUrl (required),creatorName,channelUrl,series,durationSeconds,topics
-Lagos at Night - a short film,A 12-minute portrait of the city after midnight.,2026-09-02,https://youtube.com/watch?v=ccccccccccc,Kemi Adetiba,https://youtube.com/@kemiadetiba,,720,Lagos; Nightlife
-How Nnewi Builds Cars,A mini-doc on the Southeast's auto cluster.,2026-09-05,https://vimeo.com/987654321,Africa Uncensored,https://youtube.com/@africauncensored,Made in Nigeria,900,Manufacturing; Nnewi
-Skit: The Landlord,The breakout comedy skit of the month.,2026-09-08,https://youtube.com/watch?v=ddddddddddd,Nasboi,,,180,Comedy
+title (required),excerpt,publishDate,videoUrl (required),creatorName,channelUrl,durationSeconds,series,externalPublishedAt,topics
+Lagos at Night - a short film,A 12-minute portrait of the city after midnight.,2026-09-02,https://youtube.com/watch?v=ccccccccccc,Kemi Adetiba,https://youtube.com/@kemiadetiba,720,,2026-09-01T10:00,Lagos; Nightlife
+How Nnewi Builds Cars,A mini-doc on the Southeast's auto cluster.,2026-09-05,https://vimeo.com/987654321,Africa Uncensored,https://youtube.com/@africauncensored,900,Made in Nigeria,2026-09-04T09:00,Manufacturing; Nnewi
+Skit: The Landlord,The breakout comedy skit of the month.,2026-09-08,https://youtube.com/watch?v=ddddddddddd,Nasboi,,180,,,Comedy

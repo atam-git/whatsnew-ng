@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, Star } from 'lucide-react';
+import Image from 'next/image';
 import { CONTENT_TYPES } from '@/lib/cms/content-schema';
 import { useContentList, useSetContentStatus, useDeleteContent, type ContentRow } from '@/lib/cms/hooks';
 import {
@@ -17,10 +18,10 @@ import {
   useConfirm,
   type Column,
 } from './ui';
-import { formatDate } from '@/lib/utils/format';
+import { formatDate, formatDateTime } from '@/lib/utils/format';
 import type { ContentStatus } from '@/lib/api/types';
 
-const STATUS_FILTERS = ['', 'DRAFT', 'PUBLISHED', 'ARCHIVED'] as const;
+const STATUS_FILTERS = ['', 'DRAFT', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED'] as const;
 
 export function ContentList({ type }: { type: string }) {
   const cfg = CONTENT_TYPES[type];
@@ -52,7 +53,14 @@ export function ContentList({ type }: { type: string }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={r.coverImage.url} alt="" className="border-line h-10 w-14 rounded-md border object-cover" />
         ) : (
-          <div className="bg-canvas border-line h-10 w-14 rounded-md border" />
+          <div className="bg-canvas border-line relative h-10 w-14 overflow-hidden rounded-md border">
+            <Image
+              src="/Whatsnew.ng.png"
+              alt=""
+              fill
+              className="object-contain p-1"
+            />
+          </div>
         ),
     },
     {
@@ -60,26 +68,39 @@ export function ContentList({ type }: { type: string }) {
       header: 'Title',
       primary: true,
       cell: (r) => (
-        <span className="text-ink font-medium">
-          {r.title}
-          {r.featured && <span className="text-brand-600 ml-1.5 text-[11px] font-semibold">★</span>}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-ink font-medium">{r.title}</span>
+          {r.featured && (
+            <div className="flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+              <Star className="h-3 w-3" fill="currentColor" />
+              Featured
+            </div>
+          )}
+        </div>
       ),
     },
     { key: 'status', header: 'Status', width: 'w-28', cell: (r) => <StatusBadge status={r.status} /> },
     {
       key: 'publishDate',
       header: 'Publish date',
-      width: 'w-32',
-      cell: (r) => <span className="text-muted text-[13px]">{formatDate(r.publishDate) || '-'}</span>,
+      width: 'w-40',
+      cell: (r) =>
+        r.publishDate ? (
+          <span className="text-muted text-[13px]">
+            {r.status === 'SCHEDULED' ? `${formatDateTime(r.publishDate)} WAT` : formatDate(r.publishDate)}
+          </span>
+        ) : (
+          <span className="text-muted text-[13px]">-</span>
+        ),
     },
     {
-      key: 'cities',
-      header: 'Cities',
+      key: 'states',
+      header: 'States',
       width: 'w-40',
-      cell: (r) => (
-        <span className="text-muted text-[13px]">{r.cities.map((c) => c.name).join(', ') || '-'}</span>
-      ),
+      cell: (r) => {
+        const states = [...new Set(r.cities.map((c) => c.state).filter(Boolean))];
+        return <span className="text-muted text-[13px]">{states.join(', ') || '-'}</span>;
+      },
     },
   ];
 
@@ -135,6 +156,9 @@ export function ContentList({ type }: { type: string }) {
         {selected.size > 0 && (
           <div className="ml-auto flex items-center gap-2">
             <span className="text-muted text-[13px]">{selected.size} selected</span>
+            <Button size="sm" variant="secondary" onClick={() => bulkStatus('SCHEDULED')}>
+              Schedule
+            </Button>
             <Button size="sm" variant="secondary" onClick={() => bulkStatus('PUBLISHED')}>
               Publish
             </Button>

@@ -1,17 +1,20 @@
 import { forwardRef, useId } from 'react';
 import { cn } from '@/lib/utils/cn';
+import { Tooltip } from './tooltip';
 
 export function Field({
   label,
   hint,
+  tooltip,
   error,
   required,
   htmlFor,
   className,
   children,
 }: {
-  label?: string;
+  label?: React.ReactNode;
   hint?: string;
+  tooltip?: string;
   error?: string;
   required?: boolean;
   htmlFor?: string;
@@ -21,10 +24,13 @@ export function Field({
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       {label && (
-        <label htmlFor={htmlFor} className="text-ink text-[13px] font-semibold">
-          {label}
-          {required && <span className="text-[--color-danger-600]"> *</span>}
-        </label>
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={htmlFor} className="text-ink text-[13px] font-semibold">
+            {label}
+            {required && <span className="text-red-600"> *</span>}
+          </label>
+          {tooltip && <Tooltip content={tooltip} />}
+        </div>
       )}
       {children}
       {error ? (

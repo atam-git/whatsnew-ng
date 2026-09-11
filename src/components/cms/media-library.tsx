@@ -124,6 +124,9 @@ function MediaDetail({ media, onClose }: { media: MediaRow; onClose: () => void 
   const [alt, setAlt] = useState(media.alt ?? '');
   const [copied, setCopied] = useState(false);
 
+  // Check if changes were made
+  const hasChanges = alt !== (media.alt ?? '');
+
   return (
     <Dialog
       open
@@ -151,8 +154,10 @@ function MediaDetail({ media, onClose }: { media: MediaRow; onClose: () => void 
             Delete
           </Button>
           <Button
+            variant="success"
             size="sm"
             loading={update.isPending}
+            disabled={!hasChanges}
             onClick={async () => {
               await update.mutateAsync({ id: media.id, alt });
               toast('Saved', 'success');

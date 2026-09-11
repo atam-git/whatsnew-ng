@@ -11,11 +11,11 @@ import {
   useSendTestIssue,
   issuePreviewUrl,
 } from '@/lib/cms/admin-hooks';
-import { useCities } from '@/lib/cms/hooks';
-import { PageHeader, Card, Button, Field, Input, Textarea, Select, Dialog, useToast, useConfirm } from './ui';
+import { PageHeader, Card, Button, Field, Input, Textarea, Dialog, useToast, useConfirm, Tooltip } from './ui';
 import { StatusBadge } from './ui/status-badge';
 import { RichTextEditor } from './rich-text-editor-lazy';
 import { ContentPicker } from './content-picker';
+import { formatDateTime } from '@/lib/utils/format';
 
 interface Item {
   contentId: string;
@@ -33,11 +33,9 @@ export function NewsletterEditor({ id }: { id: string }) {
   const action = useIssueAction();
   const del = useDeleteIssue();
   const sendTest = useSendTestIssue();
-  const cities = useCities();
 
   const [subject, setSubject] = useState('');
   const [previewText, setPreviewText] = useState('');
-  const [cityId, setCityId] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [intro, setIntro] = useState<any>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -50,7 +48,6 @@ export function NewsletterEditor({ id }: { id: string }) {
     if (!data || dirty) return;
     setSubject(data.subject);
     setPreviewText(data.previewText ?? '');
-    setCityId(data.cityId ?? '');
     setIntro(data.intro ?? null);
     setItems(
       data.items.map((i) => ({
@@ -80,7 +77,6 @@ export function NewsletterEditor({ id }: { id: string }) {
         id,
         subject,
         previewText: previewText || undefined,
-        cityId: cityId || undefined,
         intro,
         contentIds: ids,
       });
@@ -138,24 +134,50 @@ export function NewsletterEditor({ id }: { id: string }) {
         <div className="min-w-0 space-y-6">
           <Card title="Issue">
             <div className="space-y-4">
-              <Field label="Subject line" required>
+              <Field 
+                label={
+                  <span className="flex items-center gap-1.5">
+                    Subject line <span className="text-red-500">*</span>
+                    <Tooltip content="The email subject line. Keep it under 50 characters for best inbox display." />
+                  </span>
+                }
+              >
                 <Input value={subject} onChange={(e) => { setSubject(e.target.value); setDirty(true); }} />
               </Field>
-              <Field label="Preview text" hint="Shown after the subject in most inboxes.">
+              <Field 
+                label={
+                  <span className="flex items-center gap-1.5">
+                    Preview text
+                    <Tooltip content="Shown after the subject in most inboxes. Use this to expand on the subject line and entice opens." />
+                  </span>
+                }
+              >
                 <Textarea
                   value={previewText}
                   rows={2}
                   onChange={(e) => { setPreviewText(e.target.value); setDirty(true); }}
                 />
               </Field>
-              <Field label="Intro">
+              <Field 
+                label={
+                  <span className="flex items-center gap-1.5">
+                    Intro
+                    <Tooltip content="Optional opening message before the content list. Use rich text formatting for emphasis." />
+                  </span>
+                }
+              >
                 <RichTextEditor value={intro} onChange={(v) => { setIntro(v); setDirty(true); }} />
               </Field>
             </div>
           </Card>
 
           <Card
-            title={`Items (${items.length})`}
+            title={
+              <span className="flex items-center gap-1.5">
+                Items ({items.length})
+                <Tooltip content="Content featured in this newsletter. Click Autofill to automatically include recently published items, or search to add specific content below." />
+              </span>
+            }
             actions={
               <Button size="sm" variant="secondary" loading={action.isPending} onClick={autofill}>
                 <Sparkles className="h-4 w-4" /> Autofill
@@ -209,24 +231,46 @@ export function NewsletterEditor({ id }: { id: string }) {
                 <StatusBadge status={data?.status ?? 'DRAFT'} />
               </div>
               {data?.scheduledFor && (
-                <p className="text-muted text-[12px]">Scheduled for {new Date(data.scheduledFor).toLocaleString()}</p>
+                <p className="text-muted text-[12px]">Scheduled for {formatDateTime(data.scheduledFor)} WAT</p>
               )}
               {data?.sentAt && (
-                <p className="text-muted text-[12px]">Sent {new Date(data.sentAt).toLocaleString()}</p>
+                <p className="text-muted text-[12px]">Sent {formatDateTime(data.sentAt)} WAT</p>
+              )}
+              {data?.status === 'SCHEDULED' && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="w-full"
+                  loading={action.isPending}
+                  onClick={async () => {
+                    const ok = await confirm({ title: 'Cancel this scheduled send?' });
+                    if (!ok) return;
+                    await action.mutateAsync({ id, action: 'unschedule' });
+                    toast('Schedule cancelled', 'success');
+                  }}
+                >
+                  Cancel schedule
+                </Button>
               )}
             </div>
           </Card>
 
-          <Card title="Review">
+          <Card 
+            title={
+              <span className="flex items-center gap-1.5">
+                Review
+                <Tooltip content="Preview and test your newsletter before sending to subscribers." />
+              </span>
+            }
+          >
             <div className="space-y-2">
-              <p className="text-muted text-[12px]">See exactly what lands in the inbox.</p>
               <Button
                 size="sm"
                 variant="secondary"
                 className="w-full"
                 onClick={async () => {
                   if (dirty) await save();
-                  window.open(issuePreviewUrl(id), '_blank', 'noopener');
+                  window.open(issuePreviewUrl(id), '_blank', 'noopener,noreferrer');
                 }}
               >
                 <Eye className="h-4 w-4" /> Preview email
@@ -245,21 +289,15 @@ export function NewsletterEditor({ id }: { id: string }) {
             </div>
           </Card>
 
-          <Card title="City edition">
-            <Select
-              value={cityId}
-              onChange={(e) => { setCityId(e.target.value); setDirty(true); }}
-              disabled={sent}
-            >
-              <option value="">All subscribers</option>
-              {(cities.data ?? []).map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </Select>
-          </Card>
-
           {!sent && (
-            <Card title="Send">
+            <Card 
+              title={
+                <span className="flex items-center gap-1.5">
+                  Send
+                  <Tooltip content="Schedule for later or send immediately to all active subscribers. Scheduled sends use WAT (West Africa Time)." />
+                </span>
+              }
+            >
               <div className="space-y-3">
                 <Field label="Schedule for">
                   <Input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)} />
@@ -273,10 +311,10 @@ export function NewsletterEditor({ id }: { id: string }) {
                     if (!scheduleAt) return;
                     if (dirty) await save();
                     await action.mutateAsync({ id, action: 'schedule', body: { scheduledFor: new Date(scheduleAt).toISOString() } });
-                    toast('Scheduled', 'success');
+                    toast(data?.status === 'SCHEDULED' ? 'Rescheduled' : 'Scheduled', 'success');
                   }}
                 >
-                  Schedule
+                  {data?.status === 'SCHEDULED' ? 'Reschedule' : 'Schedule'}
                 </Button>
                 <Button
                   size="sm"
@@ -285,7 +323,7 @@ export function NewsletterEditor({ id }: { id: string }) {
                   onClick={async () => {
                     const ok = await confirm({
                       title: 'Send this issue now?',
-                      message: `It goes to every ${cityId ? 'subscriber in this city' : 'active subscriber'}.`,
+                      message: 'It goes to every active subscriber. This action cannot be undone.',
                     });
                     if (!ok) return;
                     if (dirty) await save();

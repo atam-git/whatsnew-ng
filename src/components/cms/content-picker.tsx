@@ -44,10 +44,7 @@ export function ContentPicker({
                 <li key={r.id}>
                   <button
                     type="button"
-                    onClick={() => {
-                      onAdd(r);
-                      setQ('');
-                    }}
+                    onClick={() => onAdd(r)}
                     className="hover:bg-canvas flex w-full items-center gap-2 px-3 py-2 text-left"
                   >
                     <Plus className="text-brand-600 h-4 w-4 shrink-0" />

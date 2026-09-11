@@ -2,11 +2,12 @@ import { cn } from '@/lib/utils/cn';
 import type { ContentStatus } from '@/lib/api/types';
 
 const STYLES: Record<string, string> = {
-  DRAFT: 'bg-canvas text-muted-700 border-line',
-  PUBLISHED: 'bg-[--color-success-50] text-[--color-success-700] border-[--color-success-600]/20',
-  ARCHIVED: 'bg-canvas text-muted border-line',
+  // content statuses - distinct colors
+  DRAFT: 'bg-amber-50 text-amber-700 border-amber-200',
+  SCHEDULED: 'bg-blue-50 text-blue-700 border-blue-200',
+  PUBLISHED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  ARCHIVED: 'bg-gray-100 text-gray-600 border-gray-300',
   // newsletter issue statuses
-  SCHEDULED: 'bg-[--color-warning-50] text-[--color-warning-700] border-[--color-warning-600]/20',
   SENDING: 'bg-[--color-warning-50] text-[--color-warning-700] border-[--color-warning-600]/20',
   SENT: 'bg-[--color-success-50] text-[--color-success-700] border-[--color-success-600]/20',
   FAILED: 'bg-[--color-danger-50] text-[--color-danger-700] border-[--color-danger-600]/20',

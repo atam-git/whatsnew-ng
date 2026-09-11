@@ -11,6 +11,7 @@ import { TestimonialBlock } from '@/components/business/testimonial-block';
 import { ExploreAll } from '@/components/business/explore-all';
 import { NewsletterSignup } from '@/components/business/newsletter-signup';
 import { SecondaryPromo } from '@/components/business/secondary-promo';
+import { AdsProvider, LeaderboardAd, MobileBannerAd } from '@/components/ads';
 
 // Homepage. Section order + shelf contents come from the CMS homepage singleton
 // (resolved by the backend's /homepage endpoint). A few sections are fixed
@@ -91,25 +92,26 @@ export default async function HomePage({
   const featured = allItems.find((i) => i.featured) ?? allItems[0] ?? null;
 
   return (
-    <div className="space-y-16">
-      {state && (
-        <div className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 text-sm">
-          <span className="text-gray-600">
-            Showing what&rsquo;s new in <span className="font-semibold text-ink">{state}</span>
-          </span>
-          <Link href="/" className="font-medium text-brand-600 hover:underline">
-            Clear
-          </Link>
-        </div>
-      )}
+    <AdsProvider>
+      <div className="space-y-16">
+        {state && (
+          <div className="flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 text-sm">
+            <span className="text-gray-600">
+              Showing what&rsquo;s new in <span className="font-semibold text-ink">{state}</span>
+            </span>
+            <Link href="/" className="font-medium text-brand-600 hover:underline">
+              Clear
+            </Link>
+          </div>
+        )}
 
-      {featured && (
-        <SectionBand>
-          <FeaturedArticle item={featured} />
-        </SectionBand>
-      )}
+        {featured && (
+          <SectionBand>
+            <FeaturedArticle item={featured} />
+          </SectionBand>
+        )}
 
-      {shelves.map((shelf) => {
+      {shelves.map((shelf, shelfIndex) => {
         const blocks: React.ReactNode[] = [];
 
         if (shelf.key === 'most_recent') {
@@ -155,6 +157,10 @@ export default async function HomePage({
         <ExploreAll items={allItems} />
       </SectionBand>
 
+      {/* Ad placement: Before newsletter (both desktop and mobile) */}
+      <LeaderboardAd className="my-8" />
+      <MobileBannerAd className="my-8" />
+
       <SectionBand tone="plain">
         <div id="newsletter">
           <NewsletterSignup />
@@ -164,6 +170,7 @@ export default async function HomePage({
       <SectionBand tone="surface">
         <SecondaryPromo />
       </SectionBand>
-    </div>
+      </div>
+    </AdsProvider>
   );
 }
