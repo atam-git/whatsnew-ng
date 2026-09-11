@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { env } from '@/lib/env';
 import { CloseButton } from './close-button';
+import { EmailPreviewFrame } from './email-preview-frame';
 
 async function getIssuePreview(id: string) {
   try {
@@ -78,14 +79,7 @@ export default async function NewsletterPreviewPage({
           <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Once opened
           </p>
-          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-            <iframe
-              src={previewUrl}
-              title="Email preview"
-              className="h-[80vh] w-full bg-white"
-              sandbox="allow-same-origin"
-            />
-          </div>
+          <EmailPreviewFrame src={previewUrl} />
         </div>
       </div>
     </div>

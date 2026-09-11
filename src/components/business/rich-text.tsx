@@ -20,6 +20,16 @@ function nodeText(node: Node): string {
   return (node.content ?? []).map(nodeText).join('');
 }
 
+/** Only http(s)/mailto/relative links render as real hrefs - blocks
+ *  `javascript:`/`data:` etc. stored in a link mark from executing when a
+ *  visitor clicks it. */
+function safeHref(href: string): string {
+  if (/^(https?:|mailto:)/i.test(href) || href.startsWith('/') || href.startsWith('#')) {
+    return href;
+  }
+  return '#';
+}
+
 const slugify = (s: string) =>
   s
     .toLowerCase()
@@ -48,7 +58,7 @@ function withMarks(text: string, marks: Mark[] | undefined, key: number): ReactN
     else if (mark.type === 'code')
       el = <code className="bg-canvas rounded px-1 py-0.5 text-[0.9em]">{el}</code>;
     else if (mark.type === 'link') {
-      const href = String(mark.attrs?.href ?? '#');
+      const href = safeHref(String(mark.attrs?.href ?? '#'));
       const external = /^https?:\/\//.test(href);
       el = (
         <a

@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import type { SessionUser } from '@/lib/api/types';
 import { cn } from '@/lib/utils/cn';
+import { useContacts } from '@/lib/cms/admin-hooks';
 import { SignOutButton } from './sign-out-button';
 import { PageTitleProvider, usePageTitle } from './page-title-provider';
 
@@ -64,12 +65,14 @@ function NavLink({
   label,
   icon: Icon,
   active,
+  badge,
   onNavigate,
 }: {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   active: boolean;
+  badge?: number;
   onNavigate?: () => void;
 }) {
   return (
@@ -82,7 +85,12 @@ function NavLink({
       )}
     >
       <Icon className="h-[18px] w-[18px] shrink-0" />
-      {label}
+      <span className="flex-1">{label}</span>
+      {!!badge && (
+        <span className="bg-brand-600 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-semibold text-white">
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -92,6 +100,8 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
   const [open, setOpen] = useState(false);
   const { title, subtitle, actions, breadcrumbs } = usePageTitle();
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+  const { data: unreadContacts } = useContacts('NEW');
+  const unreadCount = unreadContacts?.meta.total ?? 0;
 
   const nav = (
     <nav 
@@ -140,7 +150,15 @@ function CmsShellInner({ user, children }: { user: SessionUser; children: React.
         </p>
         <div className="flex flex-col gap-0.5">
           {MANAGE.map(([href, label, Icon]) => (
-            <NavLink key={href} href={href} label={label} icon={Icon} active={isActive(href)} onNavigate={() => setOpen(false)} />
+            <NavLink
+              key={href}
+              href={href}
+              label={label}
+              icon={Icon}
+              active={isActive(href)}
+              badge={href === '/cms/submissions' ? unreadCount : undefined}
+              onNavigate={() => setOpen(false)}
+            />
           ))}
         </div>
       </div>

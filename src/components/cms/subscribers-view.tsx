@@ -122,23 +122,22 @@ export function SubscribersView() {
         subtitle={
           data ? `${data.meta.total} ${status ? status.toLowerCase() : 'total'}` : undefined
         }
-        actions={
-          <>
-            <a
-              href={subscribersExportUrl}
-              className="border-line text-muted-700 hover:text-ink inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition"
-            >
-              <Download className="h-4 w-4" /> Export CSV
-            </a>
-            <Button onClick={() => setAdding({ email: '' })}>
-              <Plus className="h-4 w-4" /> Add subscriber
-            </Button>
-          </>
-        }
       />
 
-      <div className="mb-3">
-        <SearchInput value={q} onChange={setQ} placeholder="Search by email…" className="max-w-xs" />
+      <div className="mb-4 flex items-center gap-3">
+        <SearchInput value={q} onChange={setQ} placeholder="Search by email…" className="flex-1 max-w-xs" />
+        
+        <div className="flex items-center gap-2">
+          <a
+            href={subscribersExportUrl}
+            className="border-line text-muted-700 hover:text-ink inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition"
+          >
+            <Download className="h-4 w-4" /> Export CSV
+          </a>
+          <Button onClick={() => setAdding({ email: '' })}>
+            <Plus className="h-4 w-4" /> Add subscriber
+          </Button>
+        </div>
       </div>
 
       <div className="mb-4 flex flex-wrap gap-1.5">
