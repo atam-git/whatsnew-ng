@@ -99,6 +99,12 @@ function build(section: string, item: any): Fact[] {
     item.church ??
     item.opportunity ??
     item.read ??
+    item.film ??
+    item.airline ??
+    item.realEstate ??
+    item.podcast ??
+    item.venue ??
+    item.education ??
     {};
   const f: (Fact | false | null | undefined)[] = [];
   const push = (label: string, value: React.ReactNode) => {
@@ -336,6 +342,88 @@ function build(section: string, item: any): Fact[] {
       push('Sources', (d.sources ?? []).join(' · ') || null);
       push('Note', d.updatedNote);
       break;
+
+    case 'films':
+      push('Director', d.director);
+      push('Cast', list(d.cast));
+      push('Genre', list(d.genre));
+      push('Runtime', d.runtimeMinutes ? `${d.runtimeMinutes} min` : null);
+      push('Release', d.releaseType ? String(d.releaseType).replace('_', ' ').toLowerCase() : null);
+      push('Release date', d.releaseDate ? formatDate(d.releaseDate, 'd MMM yyyy') : null);
+      push('Streaming on', d.streamingPlatform);
+      push('Cinemas', list(d.cinemaChains));
+      push('Rating', d.ageRating);
+      push('Production', d.productionCompany);
+      push('Trailer', link(d.trailerUrl, 'Watch trailer'));
+      push('Tickets', link(d.ticketUrl, 'Get tickets'));
+      break;
+
+    case 'airlines':
+      push('Route', [d.routeFrom, d.routeTo].filter(Boolean).join(' → ') || null);
+      push('Launch date', d.launchDate ? formatDate(d.launchDate, 'd MMM yyyy') : null);
+      push('Hub', d.hubAirport);
+      push('Fleet', d.fleetType);
+      push('Frequency', d.frequency);
+      push('Fare from', money(d.fareFrom, d.currency));
+      push('Book', link(d.bookingUrl, 'Book tickets'));
+      push('Website', link(d.airlineWebsite));
+      break;
+
+    case 'real-estate':
+      push('Developer', d.developer);
+      push('Type', d.propertyType ? String(d.propertyType).replace('_', ' ').toLowerCase() : null);
+      push('Unit types', list(d.unitTypes));
+      push('Price from', money(d.priceFrom, d.currency));
+      push('Location', [d.neighbourhood, d.address].filter(Boolean).join(' · ') || null);
+      push('Completion', d.completionDate ? formatDate(d.completionDate, 'd MMM yyyy') : null);
+      push('Payment plan', d.paymentPlan);
+      push('Amenities', list(d.amenities));
+      push('Sales', d.salesPhone);
+      push('Brochure', link(d.brochureUrl));
+      break;
+
+    case 'podcasts':
+      push('Show', d.showName);
+      push('Episode', d.episodeTitle);
+      push('Hosts', list(d.hosts));
+      push('Topics', list(d.topics));
+      if (d.durationSeconds)
+        push('Length', `${Math.floor(d.durationSeconds / 60)}:${String(d.durationSeconds % 60).padStart(2, '0')}`);
+      push(
+        'Listen',
+        (d.spotifyUrl || d.applePodcastsUrl || d.youtubeUrl) && (
+          <span className="flex flex-wrap gap-3">
+            {link(d.spotifyUrl, 'Spotify')}
+            {link(d.applePodcastsUrl, 'Apple Podcasts')}
+            {link(d.youtubeUrl, 'YouTube')}
+          </span>
+        ),
+      );
+      break;
+
+    case 'venues':
+      push('Type', d.venueType ? String(d.venueType).replace('_', ' ').toLowerCase() : null);
+      push('Capacity', d.capacity ? d.capacity.toLocaleString() : null);
+      push('Location', [d.neighbourhood, d.address].filter(Boolean).join(' · ') || null);
+      push('Amenities', list(d.amenities));
+      push('Price range', d.priceRange ? String(d.priceRange).toLowerCase() : null);
+      push('Hours', hoursTable(d.openingHours));
+      push('Book', link(d.bookingUrl));
+      push('Contact', d.contactPhone);
+      break;
+
+    case 'education':
+      push('Institution', d.institution);
+      push('Program', d.programType ? String(d.programType).toLowerCase() : null);
+      push('Duration', d.duration);
+      push('Tuition', money(d.tuition, d.currency));
+      push('Delivery', d.deliveryMode);
+      push('Location', d.neighbourhood);
+      push('Deadline', d.applicationDeadline ? formatDate(d.applicationDeadline, 'd MMM yyyy') : null);
+      push('Starts', d.startDate ? formatDate(d.startDate, 'd MMM yyyy') : null);
+      push('Eligibility', d.eligibility);
+      push('Apply', link(d.applyUrl));
+      break;
   }
 
   return f.filter(Boolean) as Fact[];
@@ -344,7 +432,7 @@ function build(section: string, item: any): Fact[] {
 export function ContentFacts({ item, section }: { item: unknown; section: string }) {
   const it = item as any;
   const facts = build(section, it);
-  const d = it.restaurant ?? it.hotel ?? it.event ?? it.business ?? it.church ?? {};
+  const d = it.restaurant ?? it.hotel ?? it.event ?? it.business ?? it.church ?? it.realEstate ?? it.venue ?? {};
   const mapUrl: string | undefined = d.mapUrl;
 
   // Google's "Share" button gives an opaque maps.app.goo.gl / goo.gl/maps short
@@ -368,8 +456,9 @@ export function ContentFacts({ item, section }: { item: unknown; section: string
   };
 
   // Only content types with a mapUrl field (hotels, restaurants, events,
-  // churches, businesses) get a map — no map section at all otherwise, and
-  // never one guessed purely from title/city for types like music or reads.
+  // churches, businesses, real estate, venues) get a map — no map section at
+  // all otherwise, and never one guessed purely from title/city for types
+  // like music or reads.
   const embedUrl = mapUrl ? getMapEmbedUrl(mapUrl) : null;
 
   if (facts.length === 0 && !mapUrl) return null;

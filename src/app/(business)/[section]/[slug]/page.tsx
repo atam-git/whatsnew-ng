@@ -13,7 +13,7 @@ import { RichText } from '@/components/business/rich-text';
 import { ContentFacts } from '@/components/business/content-facts';
 import { CoverFallback } from '@/components/business/cover-fallback';
 import { streamingThumbnail } from '@/lib/utils/card-thumbnail';
-import { SongEmbed, VideoEmbed } from '@/components/business/media-embed';
+import { PodcastEmbed, SongEmbed, VideoEmbed } from '@/components/business/media-embed';
 import { AdsProvider, LeaderboardAd, MobileBannerAd } from '@/components/ads';
 
 const CONTENT_SECTIONS = new Set<string>(Object.values(CONTENT_PATHS));
@@ -30,6 +30,12 @@ const SECTION_LABELS: Record<string, string> = {
   churches: 'Church',
   opportunities: 'Opportunity',
   reads: 'Must read',
+  films: 'Film',
+  airlines: 'Airline',
+  'real-estate': 'Real estate',
+  podcasts: 'Podcast',
+  venues: 'Venue',
+  education: 'Education',
 };
 
 interface ContentDetail {
@@ -68,6 +74,14 @@ interface ContentDetail {
   } | null;
   church?: {
     streamUrl?: string | null;
+  } | null;
+  film?: {
+    trailerUrl?: string | null;
+  } | null;
+  podcast?: {
+    spotifyUrl?: string | null;
+    applePodcastsUrl?: string | null;
+    youtubeUrl?: string | null;
   } | null;
 }
 
@@ -237,6 +251,24 @@ export default async function DetailPage({
             appleMusicUrl={item.song.appleMusicUrl}
             youtubeMusicUrl={item.song.youtubeMusicUrl}
             audiomackUrl={item.song.audiomackUrl}
+          />
+        </div>
+      )}
+
+      {/* Film trailer */}
+      {section === 'films' && item.film?.trailerUrl && (
+        <div className="mt-8">
+          <VideoEmbed videoUrl={item.film.trailerUrl} videoId={null} siteHost={siteHost} />
+        </div>
+      )}
+
+      {/* Podcast player (Spotify, Apple Podcasts, YouTube) */}
+      {section === 'podcasts' && item.podcast && (
+        <div className="mt-8">
+          <PodcastEmbed
+            spotifyUrl={item.podcast.spotifyUrl}
+            applePodcastsUrl={item.podcast.applePodcastsUrl}
+            youtubeUrl={item.podcast.youtubeUrl}
           />
         </div>
       )}

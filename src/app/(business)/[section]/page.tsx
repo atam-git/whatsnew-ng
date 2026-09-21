@@ -71,6 +71,42 @@ const SECTION_META: Record<string, { heading: string; title: string; description
     description:
       'Long-form on the people, places and ideas shaping what’s new in Nigeria.',
   },
+  films: {
+    heading: 'New films',
+    title: 'New films in Nigeria',
+    description:
+      'Nollywood and international releases hitting cinemas and streaming across Nigeria.',
+  },
+  airlines: {
+    heading: 'Airlines & routes',
+    title: 'New airline routes in Nigeria',
+    description:
+      'New airlines, routes and flight launches serving Nigeria.',
+  },
+  'real-estate': {
+    heading: 'Real estate',
+    title: 'New real estate developments in Nigeria',
+    description:
+      'New housing and commercial developments from developers across Nigeria.',
+  },
+  podcasts: {
+    heading: 'Podcasts',
+    title: 'New Nigerian podcasts',
+    description:
+      'Podcasts and episodes worth a listen from Nigerian hosts and shows.',
+  },
+  venues: {
+    heading: 'Venues',
+    title: 'Venues in Nigeria',
+    description:
+      'Event spaces, clubs, galleries and coworking spots worth booking across Nigeria.',
+  },
+  education: {
+    heading: 'Education',
+    title: 'Programs & courses in Nigeria',
+    description:
+      'Degrees, bootcamps, certificates and workshops open for application in Nigeria.',
+  },
 };
 
 export async function generateMetadata({
@@ -136,7 +172,7 @@ export default async function SectionPage({ params }: { params: Promise<{ sectio
             </svg>
             <h3 className="mt-4 text-lg font-semibold text-gray-900">Nothing here yet</h3>
             <p className="text-muted mt-2 max-w-md text-sm">
-              We're working on bringing you the latest {meta?.heading.toLowerCase() || section}. Check back soon!
+              We&apos;re working on bringing you the latest {meta?.heading.toLowerCase() || section}. Check back soon!
             </p>
           </div>
         ) : (

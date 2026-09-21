@@ -121,6 +121,52 @@ export function cardMeta(item: ContentCard): CardMeta | null {
       secondary = (d.isRemote ? 'Remote' : d.locationType) ?? d.organiser ?? undefined;
       break;
     }
+    case 'FILM': {
+      const d = item.film ?? {};
+      if (d.director) seg.push({ kind: 'strong', text: d.director });
+      if (d.releaseDate) seg.push({ kind: 'muted', text: formatDate(d.releaseDate, 'd MMM yyyy') });
+      secondary = d.genre?.slice(0, 2).join(', ') || undefined;
+      break;
+    }
+    case 'AIRLINE': {
+      const d = item.airline ?? {};
+      if (d.routeFrom && d.routeTo) seg.push({ kind: 'strong', text: `${d.routeFrom} → ${d.routeTo}` });
+      if (d.fareFrom != null)
+        seg.push({ kind: 'price', amount: `from ${money(d.fareFrom, d.currency ?? 'NGN')}` });
+      if (d.launchDate) secondary = formatDate(d.launchDate, 'd MMM yyyy');
+      break;
+    }
+    case 'REAL_ESTATE': {
+      const d = item.realEstate ?? {};
+      if (d.developer) seg.push({ kind: 'strong', text: d.developer });
+      if (d.priceFrom != null)
+        seg.push({ kind: 'price', amount: `from ${money(d.priceFrom, d.currency ?? 'NGN')}` });
+      secondary = d.neighbourhood ?? undefined;
+      break;
+    }
+    case 'PODCAST': {
+      const d = item.podcast ?? {};
+      if (d.showName) seg.push({ kind: 'strong', text: d.showName });
+      const len = mmss(d.durationSeconds);
+      if (len) seg.push({ kind: 'muted', text: len });
+      secondary = d.hosts?.slice(0, 2).join(', ') || undefined;
+      break;
+    }
+    case 'VENUE': {
+      const d = item.venue ?? {};
+      if (d.venueType) seg.push({ kind: 'pill', text: d.venueType.replace('_', ' ').toLowerCase() });
+      if (d.priceRange) seg.push({ kind: 'priceBadge', text: PRICE_SYMBOL[d.priceRange] });
+      secondary = d.neighbourhood ?? undefined;
+      break;
+    }
+    case 'EDUCATION': {
+      const d = item.education ?? {};
+      if (d.institution) seg.push({ kind: 'strong', text: d.institution });
+      if (d.applicationDeadline)
+        seg.push({ kind: 'muted', text: `apply by ${formatDate(d.applicationDeadline, 'd MMM')}` });
+      secondary = d.deliveryMode ?? undefined;
+      break;
+    }
     default:
       return null;
   }

@@ -67,6 +67,19 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     ),
   },
   {
+    q: 'Can I write for Whatsnew.ng?',
+    a: (
+      <>
+        Yes -{' '}
+        <Link href="/contribute" className="text-brand-600 hover:underline">
+          pitch us a story
+        </Link>
+        . Tell us what it is and why it matters; if it&apos;s a fit, we&apos;ll email you a short
+        form to fill in the details before it goes live.
+      </>
+    ),
+  },
+  {
     q: 'Does it cost anything to be listed?',
     a: <>No. Editorial listings are free and are never paid placements. Sponsored formats, when we run them, are always labelled.</>,
   },

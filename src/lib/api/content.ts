@@ -13,6 +13,12 @@ export const CONTENT_PATHS = {
   CHURCH: 'churches',
   OPPORTUNITY: 'opportunities',
   READ: 'reads',
+  FILM: 'films',
+  AIRLINE: 'airlines',
+  REAL_ESTATE: 'real-estate',
+  PODCAST: 'podcasts',
+  VENUE: 'venues',
+  EDUCATION: 'education',
 } as const;
 
 export type ContentPath = (typeof CONTENT_PATHS)[keyof typeof CONTENT_PATHS];

@@ -27,6 +27,12 @@ const VIEW_ALL: Record<string, string> = {
   video: '/videos',
   restaurants: '/restaurants',
   new_business: '/businesses',
+  films: '/films',
+  airlines: '/airlines',
+  'real-estate': '/real-estate',
+  podcasts: '/podcasts',
+  venues: '/venues',
+  education: '/education',
 };
 
 // Shelves that render on a full-bleed white band (the rest sit on the page bg).

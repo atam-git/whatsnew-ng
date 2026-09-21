@@ -60,7 +60,7 @@ function dailymotionId(url?: string | null): string | null {
 function spotifyEmbed(url?: string | null, id?: string | null): string | null {
   if (id) return `https://open.spotify.com/embed/track/${id}`;
   if (!url) return null;
-  const m = url.match(/open\.spotify\.com\/(track|album|playlist|episode)\/([A-Za-z0-9]+)/);
+  const m = url.match(/open\.spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)/);
   return m ? `https://open.spotify.com/embed/${m[1]}/${m[2]}` : null;
 }
 
@@ -88,6 +88,11 @@ function audiomackEmbed(url?: string | null): string | null {
   // Embed format: audiomack.com/embed/song/artist/song
   const m = url.match(/audiomack\.com\/([^/]+)\/song\/([^/?]+)/);
   return m ? `https://audiomack.com/embed/song/${m[1]}/${m[2]}` : null;
+}
+
+function applePodcastsEmbed(url?: string | null): string | null {
+  if (!url || !/podcasts\.apple\.com\//.test(url)) return null;
+  return url.replace('podcasts.apple.com', 'embed.podcasts.apple.com');
 }
 
 const isVideoFile = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v|ogv)(\?|$)/i.test(u);
@@ -283,6 +288,63 @@ export function SongEmbed({
         className="border-line w-full rounded-xl border"
         style={{ height: 260 }}
       />
+    );
+  }
+  return null;
+}
+
+export function PodcastEmbed({
+  spotifyUrl,
+  applePodcastsUrl,
+  youtubeUrl,
+}: {
+  spotifyUrl?: string | null;
+  applePodcastsUrl?: string | null;
+  youtubeUrl?: string | null;
+}) {
+  const spotify = spotifyEmbed(spotifyUrl);
+  const applePodcasts = applePodcastsEmbed(applePodcastsUrl);
+  const yt = youtubeId(youtubeUrl);
+
+  // Only one player at a time - priority order matches the Listen links.
+  if (spotify) {
+    return (
+      <iframe
+        src={spotify}
+        title="Spotify player"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        className="border-line w-full rounded-xl border"
+        style={{ height: 232 }}
+      />
+    );
+  }
+  if (applePodcasts) {
+    return (
+      <iframe
+        src={applePodcasts}
+        title="Apple Podcasts player"
+        allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+        frameBorder="0"
+        loading="lazy"
+        sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+        className="border-line w-full rounded-xl border bg-transparent"
+        style={{ height: 175 }}
+      />
+    );
+  }
+  if (yt) {
+    return (
+      <div className={FRAME}>
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${yt}`}
+          title="YouTube player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          className="h-full w-full"
+        />
+      </div>
     );
   }
   return null;

@@ -24,6 +24,12 @@ const CONTENT_TYPE_LINKS = [
   { label: 'Startups', href: '/startups' },
   { label: 'Faith', href: '/churches' },
   { label: 'Opportunities', href: '/opportunities' },
+  { label: 'Film', href: '/films' },
+  { label: 'Airlines', href: '/airlines' },
+  { label: 'Real Estate', href: '/real-estate' },
+  { label: 'Podcasts', href: '/podcasts' },
+  { label: 'Venues', href: '/venues' },
+  { label: 'Education', href: '/education' },
 ];
 
 function ChevronDownIcon({ className }: { className?: string }) {

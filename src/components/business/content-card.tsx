@@ -20,6 +20,12 @@ const TYPE_COLORS: Record<string, string> = {
   CHURCH: 'text-violet-600',
   OPPORTUNITY: 'text-amber-600',
   READ: 'text-teal-600',
+  FILM: 'text-rose-600',
+  AIRLINE: 'text-sky-600',
+  REAL_ESTATE: 'text-lime-600',
+  PODCAST: 'text-fuchsia-600',
+  VENUE: 'text-cyan-600',
+  EDUCATION: 'text-yellow-600',
 };
 
 // Human label per content type.
@@ -34,6 +40,12 @@ const TYPE_LABELS: Record<string, string> = {
   CHURCH: 'Faith',
   OPPORTUNITY: 'Opportunity',
   READ: 'Read',
+  FILM: 'Film',
+  AIRLINE: 'Airline',
+  REAL_ESTATE: 'Real estate',
+  PODCAST: 'Podcast',
+  VENUE: 'Venue',
+  EDUCATION: 'Education',
 };
 
 export function ContentCard({ item }: { item: Card }) {
@@ -67,7 +79,9 @@ export function ContentCard({ item }: { item: Card }) {
         ) : (
           <CoverFallback />
         )}
-        {(item.type === 'VIDEO' || item.type === 'SONG') && <PlayBadge />}
+        {(item.type === 'VIDEO' || item.type === 'SONG' || item.type === 'FILM' || item.type === 'PODCAST') && (
+          <PlayBadge />
+        )}
       </Link>
 
       <div className="mt-3">

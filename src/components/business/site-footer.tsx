@@ -16,6 +16,7 @@ const SECTIONS = [
 const COMPANY = [
   { label: 'About us', href: '/about' },
   { label: 'Work with us', href: '/work-with-us' },
+  { label: 'Pitch a story', href: '/contribute' },
   { label: 'FAQ', href: '/faq' },
   { label: 'Contact', href: '/contact' },
 ];

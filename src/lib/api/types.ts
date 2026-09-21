@@ -16,7 +16,13 @@ export type ContentType =
   | 'BUSINESS'
   | 'CHURCH'
   | 'OPPORTUNITY'
-  | 'READ';
+  | 'READ'
+  | 'FILM'
+  | 'AIRLINE'
+  | 'REAL_ESTATE'
+  | 'PODCAST'
+  | 'VENUE'
+  | 'EDUCATION';
 
 export type ContentStatus = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'ARCHIVED';
 
@@ -96,6 +102,44 @@ export interface CardDetails {
     locationType?: string | null;
     isRemote?: boolean;
     organiser?: string | null;
+  } | null;
+  film?: {
+    director?: string | null;
+    genre?: string[];
+    releaseType?: string | null;
+    releaseDate?: string | null;
+    ageRating?: string | null;
+  } | null;
+  airline?: {
+    routeFrom?: string | null;
+    routeTo?: string | null;
+    launchDate?: string | null;
+    fareFrom?: number | null;
+    currency?: string | null;
+  } | null;
+  realEstate?: {
+    developer?: string | null;
+    propertyType?: string | null;
+    priceFrom?: number | null;
+    currency?: string | null;
+    neighbourhood?: string | null;
+  } | null;
+  podcast?: {
+    showName?: string | null;
+    hosts?: string[];
+    durationSeconds?: number | null;
+  } | null;
+  venue?: {
+    venueType?: string | null;
+    neighbourhood?: string | null;
+    priceRange?: string | null;
+    capacity?: number | null;
+  } | null;
+  education?: {
+    institution?: string | null;
+    programType?: string | null;
+    applicationDeadline?: string | null;
+    deliveryMode?: string | null;
   } | null;
 }
 
