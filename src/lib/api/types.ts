@@ -73,7 +73,11 @@ export interface CardDetails {
     genre?: string[];
     isAlbum?: boolean;
     youtubeUrl?: string | null;
+    spotifyUrl?: string | null;
+    spotifyId?: string | null;
+    appleMusicUrl?: string | null;
     youtubeMusicUrl?: string | null;
+    audiomackUrl?: string | null;
     previewThumbnailUrl?: string | null;
   } | null;
   video?: {
@@ -83,6 +87,15 @@ export interface CardDetails {
     videoUrl?: string | null;
     previewThumbnailUrl?: string | null;
     platform?: string | null;
+  } | null;
+  podcast?: {
+    showName?: string | null;
+    hosts?: string[];
+    durationSeconds?: number | null;
+    spotifyUrl?: string | null;
+    applePodcastsUrl?: string | null;
+    youtubeUrl?: string | null;
+    previewThumbnailUrl?: string | null;
   } | null;
   startup?: {
     sector?: string[];

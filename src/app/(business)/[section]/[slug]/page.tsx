@@ -82,6 +82,7 @@ interface ContentDetail {
     spotifyUrl?: string | null;
     applePodcastsUrl?: string | null;
     youtubeUrl?: string | null;
+    previewThumbnailUrl?: string | null;
   } | null;
 }
 
@@ -275,24 +276,20 @@ export default async function DetailPage({
 
       {/* Cover — always shown for all content types except videos */}
       {!(section === 'videos' && item.video) && (() => {
-        // Get cover image or streaming thumbnail (like ContentCard does)
-        const coverUrl = item.coverImage?.url || (() => {
-          if (section === 'songs' && item.song) {
-            if (item.song.previewThumbnailUrl) return item.song.previewThumbnailUrl;
-            // Extract YouTube ID from youtubeMusicUrl
-            const ytMatch = item.song.youtubeMusicUrl?.match(
-              /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
-            );
-            return ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg` : null;
-          }
-          if (section === 'videos' && item.video) {
-            const videoId = item.video.videoId || item.video.videoUrl?.match(
-              /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/
-            )?.[1];
-            return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : item.video.previewThumbnailUrl;
-          }
-          return null;
-        })();
+        // Prefer uploaded cover; for Song/Video fall back to the same streaming
+        // thumbnail cards use (hqdefault / cached oEmbed) — not maxresdefault,
+        // which 404s for many YouTube videos.
+        const type =
+          (Object.entries(CONTENT_PATHS).find(([, path]) => path === section)?.[0] as string) ??
+          '';
+        const coverUrl =
+          item.coverImage?.url ||
+          streamingThumbnail({
+            type,
+            song: item.song,
+            video: item.video,
+            podcast: item.podcast,
+          });
 
         return (
           <div className="bg-canvas relative mt-8 aspect-[16/9] overflow-hidden rounded-lg">

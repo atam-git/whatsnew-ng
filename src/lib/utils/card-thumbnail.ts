@@ -1,5 +1,3 @@
-import type { ContentCard } from '@/lib/api/types';
-
 /** Matches both youtube.com and music.youtube.com (same video-id scheme). */
 function youtubeId(url?: string | null): string | null {
   if (!url) return null;
@@ -22,24 +20,78 @@ export function isAutoThumbnailPlatform(url?: string | null): boolean {
   return !!youtubeId(url) || !!vimeoId(url);
 }
 
+export type SongThumbnailSources = {
+  spotifyUrl?: string | null;
+  spotifyId?: string | null;
+  appleMusicUrl?: string | null;
+  youtubeMusicUrl?: string | null;
+  audiomackUrl?: string | null;
+  previewThumbnailUrl?: string | null;
+};
+
+export type PodcastThumbnailSources = {
+  spotifyUrl?: string | null;
+  applePodcastsUrl?: string | null;
+  youtubeUrl?: string | null;
+  previewThumbnailUrl?: string | null;
+};
+
 /**
- * When a Song/Video has no uploaded cover, fall back to a thumbnail derived
- * from its playable source rather than the generic brand-mark placeholder -
- * a real preview beats a blank card.
+ * When a Song/Video/Podcast has no uploaded cover, fall back to artwork from
+ * its playable source.
  *
- * `previewThumbnailUrl` is fetched and cached server-side on save (Spotify/
- * Apple Music/Audiomack oEmbed, or Vimeo for non-YouTube videos - see
- * `ExternalThumbnailService` on the backend) since those need a network
- * call. YouTube/YouTube Music don't - they have a free, keyless thumbnail
- * URL scheme, so it's derived here instead, and only used when there's no
- * cached one (matches the Listen-links priority: Spotify/Apple/Audiomack
- * before YouTube).
+ * Song: Spotify → Apple Music → YouTube Music → Audiomack (matches SongEmbed).
+ * Podcast: Spotify → Apple Podcasts → YouTube (matches PodcastEmbed).
+ * Never show a lower-ranked platform's art while a higher-ranked link owns
+ * the player.
+ *
+ * `previewThumbnailUrl` is cached server-side on save for Spotify / Apple /
+ * Audiomack. YouTube is derived client-side (free hqdefault URL).
  */
-export function streamingThumbnail(item: ContentCard): string | null {
+export function streamingThumbnail(item: {
+  type: string;
+  song?: SongThumbnailSources | null;
+  podcast?: PodcastThumbnailSources | null;
+  video?: {
+    videoId?: string | null;
+    videoUrl?: string | null;
+    previewThumbnailUrl?: string | null;
+  } | null;
+}): string | null {
   if (item.type === 'SONG') {
-    if (item.song?.previewThumbnailUrl) return item.song.previewThumbnailUrl;
-    const id = youtubeId(item.song?.youtubeMusicUrl);
-    return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    const song = item.song;
+    if (!song) return null;
+
+    if (song.spotifyUrl || song.spotifyId) {
+      return song.previewThumbnailUrl ?? null;
+    }
+    if (song.appleMusicUrl) {
+      return song.previewThumbnailUrl ?? null;
+    }
+    if (song.youtubeMusicUrl) {
+      const id = youtubeId(song.youtubeMusicUrl);
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    }
+    if (song.audiomackUrl) {
+      return song.previewThumbnailUrl ?? null;
+    }
+    return null;
+  }
+  if (item.type === 'PODCAST') {
+    const podcast = item.podcast;
+    if (!podcast) return null;
+
+    if (podcast.spotifyUrl) {
+      return podcast.previewThumbnailUrl ?? null;
+    }
+    if (podcast.applePodcastsUrl) {
+      return podcast.previewThumbnailUrl ?? null;
+    }
+    if (podcast.youtubeUrl) {
+      const id = youtubeId(podcast.youtubeUrl);
+      return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : null;
+    }
+    return null;
   }
   if (item.type === 'VIDEO') {
     const id = item.video?.videoId || youtubeId(item.video?.videoUrl);
